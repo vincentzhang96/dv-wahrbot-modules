@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.GenericMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 
+import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -65,10 +66,10 @@ public class CommandHandler {
             switch (cmd) {
                 case "help": {
                     event.getMessage().getChannel().sendMessage("Available commands: " +
-                        "help, shutdown, restart, " +
-                        "loadmod <moduleid[-version]>, " +
-                        "unloadmod <moduleid>, " +
-                        "reloadmod <moduleid[-version]>")
+                        "help, shutdown, restart,\n" +
+                        "load <moduleid> [version],\n" +
+                        "unload <moduleid>,\n" +
+                        "reload <moduleid> [version]")
                         .queue();
                     break;
                 }
@@ -80,15 +81,15 @@ public class CommandHandler {
                     bot.restart();
                     break;
                 }
-                case "loadmod": {
+                case "load": {
                     this.loadModule(args, event);
                     break;
                 }
-                case "unloadmod": {
+                case "unload": {
                     this.unloadModule(args, event);
                     break;
                 }
-                case "reloadmod": {
+                case "reload": {
                     this.reloadModule(args, event);
                     break;
                 }
@@ -105,6 +106,7 @@ public class CommandHandler {
         if (args.isEmpty()) {
             ch.sendMessage("Missing module ID and/or version")
                 .queue();
+            return;
         }
 
         String[] split = args.split(" ", 2);
@@ -114,6 +116,8 @@ public class CommandHandler {
             this.core.getBot().getModuleManager().loadModule(id, version);
             ch.sendMessage(String.format("Module `%s` loaded", id))
                 .queue();
+
+            this.core.getBot().getModuleManager().saveCurrentModuleList();
         } catch (IllegalStateException ise) {
             ch.sendMessage("Module is already loaded")
                 .queue();
@@ -122,6 +126,11 @@ public class CommandHandler {
             ch.sendMessage("Failed to load module: " + mle.toString() + " <" + uuid.toString() + ">")
                 .queue();
             CoreModule.LOGGER.warn("Module {}:{} load failed <{}>", id, version, uuid, mle);
+        } catch (IOException e) {
+            UUID uuid = UUID.randomUUID();
+            ch.sendMessage("Failed to save module list, changes might not persist <" + uuid.toString() + ">")
+                .queue();
+            CoreModule.LOGGER.warn("Failed to save module list <{}>", uuid, e);
         }
     }
 
@@ -130,18 +139,32 @@ public class CommandHandler {
         if (args.isEmpty()) {
             ch.sendMessage("Missing module ID and/or version")
                 .queue();
+            return;
         }
 
         String id = args;
+
+        if (id.equals("core")) {
+            ch.sendMessage("Cannot unload core module!")
+                .queue();
+            return;
+        }
+
         try {
             this.core.getBot().getModuleManager().unloadModule(id);
             ch.sendMessage(String.format("Module `%s` unloaded", id))
                 .queue();
+            this.core.getBot().getModuleManager().saveCurrentModuleList();
         } catch (NoSuchElementException nsee) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to unload module: " + nsee.toString() + " <" + uuid.toString() + ">")
                 .queue();
             CoreModule.LOGGER.warn("Module {} unload failed <{}>", id, uuid, nsee);
+        } catch (IOException e) {
+            UUID uuid = UUID.randomUUID();
+            ch.sendMessage("Failed to save module list, changes might not persist <" + uuid.toString() + ">")
+                .queue();
+            CoreModule.LOGGER.warn("Failed to save module list <{}>", uuid, e);
         }
     }
 
@@ -159,11 +182,17 @@ public class CommandHandler {
             this.core.getBot().getModuleManager().reloadModule(id, version);
             ch.sendMessage(String.format("Module `%s` reloaded", id))
                 .queue();
+            this.core.getBot().getModuleManager().saveCurrentModuleList();
         } catch (ModuleLoadException mle) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to reload module: " + mle.toString() + " <" + uuid.toString() + ">")
                 .queue();
             CoreModule.LOGGER.warn("Module {}:{} reload failed <{}>", id, version, uuid, mle);
+        } catch (IOException e) {
+            UUID uuid = UUID.randomUUID();
+            ch.sendMessage("Failed to save module list, changes might not persist <" + uuid.toString() + ">")
+                .queue();
+            CoreModule.LOGGER.warn("Failed to save module list <{}>", uuid, e);
         }
     }
 }

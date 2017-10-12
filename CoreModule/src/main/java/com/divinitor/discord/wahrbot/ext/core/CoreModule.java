@@ -30,20 +30,15 @@ public class CoreModule implements Module {
         this.bot = bot;
         this.dynConfigStore = dynConfigStore;
         this.handler = new CommandHandler(this);
-        LOGGER.info("Construct 2.0");
     }
 
     @Override
     public void init(ModuleContext context) throws Exception {
-        LOGGER.info("Init");
-
         //  Subscription methods are automatically registered on the module
     }
 
     @Override
     public void shutDown() {
-        LOGGER.info("Shut down");
-
         //  Subscription methods are automatically unregistered on the module
     }
 
