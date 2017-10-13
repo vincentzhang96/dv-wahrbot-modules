@@ -6,13 +6,13 @@
 
     <groupId>com.divinitor.discord.wahrbot.ext</groupId>
     <artifactId>BasicsModule</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.8</version>
 
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>com.divinitor.discord.wahrbot.ext.basics.BasicsModule</mainClass>
-        <modId>core</modId>
+        <modId>basics</modId>
     </properties>
 
 
