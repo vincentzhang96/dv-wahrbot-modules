@@ -6,6 +6,7 @@ import com.divinitor.discord.wahrbot.core.config.dyn.DynConfigStore;
 import com.divinitor.discord.wahrbot.core.i18n.ResourceBundleBundle;
 import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
+import com.divinitor.discord.wahrbot.ext.basics.commands.AvatarCmd;
 import com.divinitor.discord.wahrbot.ext.basics.commands.InfoCmd;
 import com.google.inject.Inject;
 import lombok.Getter;
@@ -27,6 +28,8 @@ public class BasicsModule implements Module {
 
     @Inject
     private InfoCmd infoCmd;
+    @Inject
+    private AvatarCmd avatarCmd;
 
     @Inject
     public BasicsModule(WahrBot bot, DynConfigStore dynConfigStore, CommandDispatcher dispatcher) {
@@ -40,8 +43,12 @@ public class BasicsModule implements Module {
         this.bot.getLocalizer().registerBundle(infoCmd.key(),
             new ResourceBundleBundle("com.divinitor.discord.wahrbot.ext.basics.commands.info",
                 this.getClass().getClassLoader()));
+        this.bot.getLocalizer().registerBundle(avatarCmd.key(),
+            new ResourceBundleBundle("com.divinitor.discord.wahrbot.ext.basics.commands.avatar",
+                this.getClass().getClassLoader()));
 
         this.dispatcher.getRootRegistry().registerCommand(infoCmd, infoCmd.key());
+        this.dispatcher.getRootRegistry().registerCommand(avatarCmd, avatarCmd.key());
 
         //  Subscription methods are automatically registered on the module
     }
@@ -50,8 +57,10 @@ public class BasicsModule implements Module {
     public void shutDown() {
 
         this.dispatcher.getRootRegistry().unregisterCommand(infoCmd.key());
+        this.dispatcher.getRootRegistry().unregisterCommand(avatarCmd.key());
 
         this.bot.getLocalizer().unregisterBundle(infoCmd.key());
+        this.bot.getLocalizer().unregisterBundle(avatarCmd.key());
 
         //  Subscription methods are automatically unregistered on the module
     }
