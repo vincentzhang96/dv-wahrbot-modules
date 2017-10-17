@@ -44,14 +44,15 @@ public class AvatarCmd implements Command {
         Message ret;
         if (member == null) {
             ret = this.notFound(userLookup, context.getLocale());
+            context.getFeedbackChannel().sendMessage(ret)
+                .queue();
+            return CommandResult.rejected();
         } else {
             ret = this.forMember(member, context);
+            context.getFeedbackChannel().sendMessage(ret)
+                .queue();
+            return CommandResult.ok();
         }
-
-        context.getFeedbackChannel().sendMessage(ret)
-            .queue();
-
-        return CommandResult.ok();
     }
 
     private Message forMember(Member member, CommandContext context) {

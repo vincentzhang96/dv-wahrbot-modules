@@ -6,7 +6,7 @@
 
     <groupId>com.divinitor.discord.wahrbot.ext</groupId>
     <artifactId>CoreModule</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.5</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

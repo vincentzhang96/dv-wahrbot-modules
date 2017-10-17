@@ -1,19 +1,35 @@
 package com.divinitor.discord.wahrbot.ext.core;
 
 import com.divinitor.discord.wahrbot.core.WahrBot;
+import com.divinitor.discord.wahrbot.core.command.CommandLine;
 import com.divinitor.discord.wahrbot.core.config.dyn.DynConfigHandle;
 import com.divinitor.discord.wahrbot.core.config.dyn.DynConfigStore;
 import com.divinitor.discord.wahrbot.core.config.dyn.LongDynConfigHandle;
+import com.divinitor.discord.wahrbot.core.module.ModuleInformation;
 import com.divinitor.discord.wahrbot.core.module.ModuleLoadException;
+import com.divinitor.discord.wahrbot.core.store.UserStore;
+import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
+import com.divinitor.discord.wahrbot.core.util.gson.StandardGson;
 import com.github.zafarkhaja.semver.Version;
+import com.mashape.unirest.http.Unirest;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.GenericMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 public class CommandHandler {
 
@@ -36,8 +52,12 @@ public class CommandHandler {
         //  so that we can always perform core management tasks
 
         String content = event.getMessage().getContent();
-        String prefix = managementPrefix.get();
-        if (!content.startsWith(prefix)) {
+
+        CommandLine line = new CommandLine(content);
+
+        //  Remove prefix
+        String prefix = this.managementPrefix.get();
+        if (!line.hasPrefixAndTake(prefix)) {
             return;
         }
 
@@ -47,20 +67,14 @@ public class CommandHandler {
             return;
         }
 
-        if (author.getIdLong() != managementAccountId.getLong()) {
+        if (author.getIdLong() != this.managementAccountId.getLong()) {
             CoreModule.LOGGER.warn("User " + author.toString() + " does not have valid credentials for managing " +
                 "the bot; access denied");
             return;
         }
 
-        //  Remove prefix
-        content = content.substring(prefix.length());
-
         //  Process command
-        String[] split = content.split(" ", 2);
-        String cmd = split[0].toLowerCase();
-        String args = split.length == 2 ? split[1] : "";
-
+        String cmd = line.next();
 
         try {
             switch (cmd) {
@@ -68,8 +82,10 @@ public class CommandHandler {
                     event.getMessage().getChannel().sendMessage("Available commands: " +
                         "help, shutdown, restart,\n" +
                         "load <moduleid> [version],\n" +
+                        "add [url]|<attachment>,\n" +
                         "unload <moduleid>,\n" +
-                        "reload <moduleid> [version]")
+                        "reload <moduleid> [version]\n" +
+                        "admin <userid>\n")
                         .queue();
                     break;
                 }
@@ -82,15 +98,23 @@ public class CommandHandler {
                     break;
                 }
                 case "load": {
-                    this.loadModule(args, event);
+                    this.loadModule(line, event);
+                    break;
+                }
+                case "add": {
+                    this.addModule(line, event);
                     break;
                 }
                 case "unload": {
-                    this.unloadModule(args, event);
+                    this.unloadModule(line, event);
                     break;
                 }
                 case "reload": {
-                    this.reloadModule(args, event);
+                    this.reloadModule(line, event);
+                    break;
+                }
+                case "sudo": {
+                    this.setSuperAdmin(line, event);
                     break;
                 }
             }
@@ -101,17 +125,120 @@ public class CommandHandler {
         }
     }
 
-    private void loadModule(String args, GenericMessageEvent event) {
+    private void setSuperAdmin(CommandLine line, PrivateMessageReceivedEvent event) {
         MessageChannel ch = event.getChannel();
-        if (args.isEmpty()) {
+        if (!line.hasNext()) {
+            ch.sendMessage("Missing user ID")
+                .queue();
+            return;
+        }
+
+        String id = line.next();
+        if (id.startsWith(SnowflakeUtils.PREFIX)) {
+            id = SnowflakeUtils.decodeToString(id);
+        }
+
+        User user = event.getJDA().getUserById(id);
+        if (user == null) {
+            ch.sendMessage("Cannot find user with that ID")
+                .queue();
+            return;
+        }
+
+        UserStore userStore = this.core.getBot().getUserStorage().forUser(user);
+        boolean sudo = userStore.getBoolean("sudo");
+        userStore.put("sudo", !sudo);
+
+        if (sudo) {
+            ch.sendMessage(String.format("User %s#%s (%s) is no longer a super admin",
+                user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user.getIdLong())))
+                .queue();
+        } else {
+            ch.sendMessage(String.format("User %s#%s (%s) is now a super admin",
+                user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user.getIdLong())))
+                .queue();
+        }
+    }
+
+    private void addModule(CommandLine line, PrivateMessageReceivedEvent event) {
+        MessageChannel ch = event.getChannel();
+        List<Message.Attachment> attachments = event.getMessage().getAttachments();
+        String urlStr;
+        if (!attachments.isEmpty()) {
+            Message.Attachment first = attachments.get(0);
+            urlStr = first.getUrl();
+        } else {
+            //  Look for a URL
+            if (!line.hasNext()) {
+                urlStr = line.remainder();
+            } else {
+                ch.sendMessage("Missing module URL or attachment")
+                    .queue();
+                return;
+            }
+        }
+        try {
+            Path temp = Files.createTempFile("wahrbot", ".jar");
+            InputStream body = Unirest.get(urlStr)
+                .asBinary()
+                .getBody();
+            byte[] buffer = new byte[8192];
+            int read = 0;
+            try (OutputStream os = Files.newOutputStream(temp)) {
+                while ((read = body.read(buffer)) != -1) {
+                    os.write(buffer, 0, read);
+                }
+                os.flush();
+            }
+
+            //  Inspect!
+            ModuleInformation info;
+            Path modDir;
+            Path outfile;
+            try (JarFile jarFile = new JarFile(temp.toFile())) {
+                ZipEntry entry = jarFile.getEntry("moduleinfo.json");
+
+                InputStream inputStream = jarFile.getInputStream(entry);
+                info = StandardGson.instance().fromJson(
+                    new InputStreamReader(inputStream),
+                    ModuleInformation.class);
+            } catch (IOException e) {
+                throw new ModuleLoadException("Failed to read module from " + urlStr, e);
+            }
+
+            modDir = this.core.getBot().getBotDir().resolve("module").resolve(info.getId());
+            Files.createDirectories(modDir);
+            outfile = modDir.resolve(String.format("%s-%s.jar", info.getId(), info.getVersion()));
+            Files.copy(temp, outfile, StandardCopyOption.REPLACE_EXISTING);
+
+            if (this.core.getBot().getModuleManager().getLoadedModules().containsKey(info.getId())) {
+                this.reloadModuleImpl(ch, info.getId(), info.getVersion());
+            } else {
+                this.loadModuleImpl(ch, info.getId(), info.getVersion());
+            }
+
+        } catch (Exception e) {
+            UUID uuid = UUID.randomUUID();
+            ch.sendMessage("Failed to load module: " + e.toString() + " <" + uuid.toString() + ">")
+                .queue();
+            CoreModule.LOGGER.warn("Module {} load failed <{}>", urlStr, uuid, e);
+        }
+    }
+
+    private void loadModule(CommandLine line, GenericMessageEvent event) {
+        MessageChannel ch = event.getChannel();
+        if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
                 .queue();
             return;
         }
 
-        String[] split = args.split(" ", 2);
-        String id = split[0].toLowerCase();
-        Version version = split.length == 2 ? Version.valueOf(split[1]) : null;
+        String id = line.next();
+        Version version = line.hasNext() ? Version.valueOf(line.next()) : null;
+        this.loadModuleImpl(ch, id, version);
+    }
+
+    private void loadModuleImpl(MessageChannel ch, String id, Version version) {
         try {
             this.core.getBot().getModuleManager().loadModule(id, version);
             ch.sendMessage(String.format("Module `%s` loaded", id))
@@ -134,15 +261,15 @@ public class CommandHandler {
         }
     }
 
-    private void unloadModule(String args, GenericMessageEvent event) {
+    private void unloadModule(CommandLine line, GenericMessageEvent event) {
         MessageChannel ch = event.getChannel();
-        if (args.isEmpty()) {
+        if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
                 .queue();
             return;
         }
 
-        String id = args;
+        String id = line.remainder();
 
         if (id.equals("core")) {
             ch.sendMessage("Cannot unload core module!")
@@ -150,6 +277,10 @@ public class CommandHandler {
             return;
         }
 
+        this.unloadModuleImpl(ch, id);
+    }
+
+    private void unloadModuleImpl(MessageChannel ch, String id) {
         try {
             this.core.getBot().getModuleManager().unloadModule(id);
             ch.sendMessage(String.format("Module `%s` unloaded", id))
@@ -168,16 +299,19 @@ public class CommandHandler {
         }
     }
 
-    private void reloadModule(String args, GenericMessageEvent event) {
+    private void reloadModule(CommandLine line, GenericMessageEvent event) {
         MessageChannel ch = event.getChannel();
-        if (args.isEmpty()) {
+        if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
                 .queue();
         }
 
-        String[] split = args.split(" ", 2);
-        String id = split[0].toLowerCase();
-        Version version = split.length == 2 ? Version.valueOf(split[1]) : null;
+        String id = line.next();
+        Version version = line.hasNext() ? Version.valueOf(line.next()) : null;
+        this.reloadModuleImpl(ch, id, version);
+    }
+
+    private void reloadModuleImpl(MessageChannel ch, String id, Version version) {
         try {
             this.core.getBot().getModuleManager().reloadModule(id, version);
             ch.sendMessage(String.format("Module `%s` reloaded", id))
