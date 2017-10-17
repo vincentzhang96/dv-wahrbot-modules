@@ -6,7 +6,7 @@
 
     <groupId>com.divinitor.discord.wahrbot.ext</groupId>
     <artifactId>BasicsModule</artifactId>
-    <version>0.1.13</version>
+    <version>0.1.16</version>
 
 
     <properties>

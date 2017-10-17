@@ -50,7 +50,7 @@ public class InfoCmd implements Command {
 
         Message ret;
         if (member == null) {
-            ret = this.notFound(userLookup, context.getLocale());
+            ret = this.notFound(userLookup, context);
             context.getFeedbackChannel().sendMessage(ret)
                 .queue();
             return CommandResult.rejected();
@@ -201,11 +201,13 @@ public class InfoCmd implements Command {
             .build();
     }
 
-    private Message notFound(String query, Locale locale) {
+    private Message notFound(String query, CommandContext context) {
+        Locale locale = context.getLocale();
         EmbedBuilder builder = new EmbedBuilder();
 
         builder.setTitle(loc.localizeToLocale(key("err", "not_found"), locale));
-        builder.setDescription(loc.localizeToLocale(key("err", "not_found", "desc"), locale, query));
+        builder.setDescription(loc.localizeToLocale(key("err", "not_found", "desc"), locale, query,
+            context.getNamedLocalizationContextParams()));
         builder.setColor(Color.ORANGE);
 
         return new MessageBuilder()
