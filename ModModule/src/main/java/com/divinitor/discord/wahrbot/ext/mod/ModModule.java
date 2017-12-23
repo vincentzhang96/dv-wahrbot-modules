@@ -8,11 +8,12 @@ import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
 import com.divinitor.discord.wahrbot.ext.mod.commands.farewell.SetFarewellChannelCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.farewell.SetFarewellCmd;
+import com.divinitor.discord.wahrbot.ext.mod.commands.reactrole.ReactRoleInitCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.welcome.SetWelcomeChannelCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.welcome.SetWelcomeCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.welcome.SetWelcomeDMCmd;
 import com.divinitor.discord.wahrbot.ext.mod.listeners.JoinLeaveListener;
-import com.divinitor.discord.wahrbot.ext.mod.listeners.ReactionListener;
+import com.divinitor.discord.wahrbot.ext.mod.listeners.ReactionService;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,7 @@ public class ModModule implements Module {
     private JoinLeaveListener joinLeaveListener;
 
     @Inject
-    private ReactionListener reactionListener;
+    private ReactionService reactionService;
 
     @Inject
     private SetWelcomeCmd setWelcomeCmd;
@@ -49,6 +50,9 @@ public class ModModule implements Module {
     private SetFarewellCmd setFarewellCmd;
     @Inject
     private SetFarewellChannelCmd setFarewellChannelCmd;
+
+    @Inject
+    private ReactRoleInitCmd reactRoleInitCmd;
 
     @Inject
     public ModModule(WahrBot bot, CommandDispatcher dispatcher) {
@@ -101,13 +105,17 @@ public class ModModule implements Module {
             new ResourceBundleBundle(REACTROLE_REF,
                 this.getClass().getClassLoader()));
 
-        reactRoleRegistry = this.modRegistry.makeRegistries(
-            "com.divinitor.discord.wahrbot.ext.mod.commands.mod.reactrole");
+        this.registerBundle(this.reactRoleInitCmd.key());
 
+        this.reactRoleRegistry = this.modRegistry.makeRegistries(
+            "com.divinitor.discord.wahrbot.ext.mod.commands.mod.reactrole");
+        this.reactRoleRegistry.registerCommand(this.reactRoleInitCmd, this.reactRoleInitCmd.key());
 
         this.bot.getEventBus().register(this.joinLeaveListener);
-        this.bot.getEventBus().register(this.reactionListener);
-        this.reactionListener.start();
+        this.bot.getEventBus().register(this.reactionService);
+
+        this.reactionService.start();
+        this.reactRoleInitCmd.setListener(this.reactionService);
     }
 
     private void registerBundle(String key) {
@@ -118,8 +126,8 @@ public class ModModule implements Module {
 
     @Override
     public void shutDown() {
-        this.reactionListener.stop();
-        this.bot.getEventBus().unregister(this.reactionListener);
+        this.reactionService.stop();
+        this.bot.getEventBus().unregister(this.reactionService);
         this.bot.getEventBus().unregister(this.joinLeaveListener);
 
         this.modRegistry.unregisterCommand(this.setWelcomeCmd.key());
