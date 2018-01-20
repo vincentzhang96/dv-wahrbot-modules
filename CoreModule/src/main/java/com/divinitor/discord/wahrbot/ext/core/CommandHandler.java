@@ -15,7 +15,7 @@ import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.GenericMessageEvent;
+import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 
 import java.io.IOException;
@@ -33,8 +33,8 @@ import java.util.zip.ZipEntry;
 
 public class CommandHandler {
 
-    public static final String MANAGEMENT_KEY = "com.divinitor.discord.wahrbot.ext.core.management.id";
-    public static final String MANAGEMENT_PREFIX = "com.divinitor.discord.wahrbot.ext.core.management.prefix";
+    public static final String MANAGEMENT_KEY = "ext.core.management.id";
+    public static final String MANAGEMENT_PREFIX = "ext.core.management.prefix";
     private final CoreModule core;
     private final LongDynConfigHandle managementAccountId;
     private final DynConfigHandle managementPrefix;
@@ -51,7 +51,7 @@ public class CommandHandler {
         //  Instead of using the command bus for these commands, we listen for these raw as to avoid misbehaving modules
         //  so that we can always perform core management tasks
 
-        String content = event.getMessage().getContent();
+        String content = event.getMessage().getContentDisplay();
 
         CommandLine line = new CommandLine(content);
 
@@ -225,7 +225,7 @@ public class CommandHandler {
         }
     }
 
-    private void loadModule(CommandLine line, GenericMessageEvent event) {
+    private void loadModule(CommandLine line, GenericPrivateMessageEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
@@ -261,7 +261,7 @@ public class CommandHandler {
         }
     }
 
-    private void unloadModule(CommandLine line, GenericMessageEvent event) {
+    private void unloadModule(CommandLine line, GenericPrivateMessageEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
@@ -299,7 +299,7 @@ public class CommandHandler {
         }
     }
 
-    private void reloadModule(CommandLine line, GenericMessageEvent event) {
+    private void reloadModule(CommandLine line, GenericPrivateMessageEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
