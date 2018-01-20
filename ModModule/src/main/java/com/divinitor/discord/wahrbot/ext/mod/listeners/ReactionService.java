@@ -14,6 +14,7 @@ import gnu.trove.set.hash.TLongHashSet;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.core.exceptions.HierarchyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,13 +127,20 @@ public class ReactionService {
             return;
         }
 
-        guild.getController().addSingleRoleToMember(member, role).reason("Adding reactrole managed role due to reaction being added")
-            .queue(null, (ex) -> {
-                LOGGER.warn("Failed to update roles for {}#{} ({}): Tried adding role {} ({}) but failed",
-                    user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user),
-                    role.getName(), SnowflakeUtils.encode(role),
-                    ex);
-            });
+        try {
+            guild.getController().addSingleRoleToMember(member, role).reason("Adding reactrole managed role due to reaction being added")
+                .queue(null, (ex) -> {
+                    LOGGER.warn("Failed to update roles for {}#{} ({}): Tried adding role {} ({}) but failed",
+                        user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user),
+                        role.getName(), SnowflakeUtils.encode(role),
+                        ex);
+                });
+        } catch (HierarchyException he) {
+            LOGGER.warn("Failed to update roles for {}#{} ({}): Tried adding role {} ({}) but failed",
+                user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user),
+                role.getName(), SnowflakeUtils.encode(role),
+                he);
+        }
     }
 
     @Subscribe
@@ -182,13 +190,20 @@ public class ReactionService {
             return;
         }
 
-        guild.getController().removeSingleRoleFromMember(member, role).reason("Removing reactrole managed role due to reaction being removed")
-            .queue(null, (ex) -> {
-                LOGGER.warn("Failed to update roles for {}#{} ({}): Tried deleting role {} ({}) but failed",
-                    user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user),
-                    role.getName(), SnowflakeUtils.encode(role),
-                    ex);
-            });
+        try {
+            guild.getController().removeSingleRoleFromMember(member, role).reason("Removing reactrole managed role due to reaction being removed")
+                .queue(null, (ex) -> {
+                    LOGGER.warn("Failed to update roles for {}#{} ({}): Tried deleting role {} ({}) but failed",
+                        user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user),
+                        role.getName(), SnowflakeUtils.encode(role),
+                        ex);
+                });
+        } catch (HierarchyException he) {
+            LOGGER.warn("Failed to update roles for {}#{} ({}): Tried adding role {} ({}) but failed",
+                user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user),
+                role.getName(), SnowflakeUtils.encode(role),
+                he);
+        }
     }
 
     public void invalidateGuild(Guild guild) {
@@ -227,7 +242,7 @@ public class ReactionService {
         this.invalidateGuild(serverStore.getServer());
     }
 
-    public void addReactRoleToMessage(ServerStore serverStore)
+//    public void addReactRoleToMessage(ServerStore serverStore)
 
     private static class CacheEntry {
         boolean skip;

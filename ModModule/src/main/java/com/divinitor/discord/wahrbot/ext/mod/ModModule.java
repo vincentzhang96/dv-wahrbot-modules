@@ -8,6 +8,7 @@ import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
 import com.divinitor.discord.wahrbot.ext.mod.commands.farewell.SetFarewellChannelCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.farewell.SetFarewellCmd;
+import com.divinitor.discord.wahrbot.ext.mod.commands.reactrole.ReactRoleAddCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.reactrole.ReactRoleInitCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.welcome.SetWelcomeChannelCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.welcome.SetWelcomeCmd;
@@ -53,6 +54,8 @@ public class ModModule implements Module {
 
     @Inject
     private ReactRoleInitCmd reactRoleInitCmd;
+    @Inject
+    private ReactRoleAddCmd reactRoleAddCmd;
 
     @Inject
     public ModModule(WahrBot bot, CommandDispatcher dispatcher) {
@@ -106,16 +109,19 @@ public class ModModule implements Module {
                 this.getClass().getClassLoader()));
 
         this.registerBundle(this.reactRoleInitCmd.key());
+        this.registerBundle(this.reactRoleAddCmd.key());
 
         this.reactRoleRegistry = this.modRegistry.makeRegistries(
             "com.divinitor.discord.wahrbot.ext.mod.commands.mod.reactrole");
         this.reactRoleRegistry.registerCommand(this.reactRoleInitCmd, this.reactRoleInitCmd.key());
+        this.reactRoleRegistry.registerCommand(this.reactRoleAddCmd, this.reactRoleAddCmd.key());
 
         this.bot.getEventBus().register(this.joinLeaveListener);
         this.bot.getEventBus().register(this.reactionService);
 
         this.reactionService.start();
         this.reactRoleInitCmd.setListener(this.reactionService);
+        this.reactRoleAddCmd.setListener(this.reactionService);
     }
 
     private void registerBundle(String key) {

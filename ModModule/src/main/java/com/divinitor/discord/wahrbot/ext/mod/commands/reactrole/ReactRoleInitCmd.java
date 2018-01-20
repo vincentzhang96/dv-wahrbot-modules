@@ -12,12 +12,14 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.utils.PermissionUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
 
 public class ReactRoleInitCmd implements Command {
 
@@ -46,7 +48,7 @@ public class ReactRoleInitCmd implements Command {
             builder.setDescription(this.loc.localizeToLocale(this.key("error.no_args"), l, nlcp));
             builder.setColor(Color.RED);
             context.getFeedbackChannel().sendMessage(builder.build())
-                .queue();
+                .queue(null, handleQueueException());
             return CommandResult.rejected();
         }
 
@@ -94,7 +96,7 @@ public class ReactRoleInitCmd implements Command {
                 builder.setDescription(this.loc.localizeToLocale(this.key("error.channel_not_found"), l, target, nlcp));
                 builder.setColor(Color.RED);
                 context.getFeedbackChannel().sendMessage(builder.build())
-                    .queue();
+                    .queue(null, handleQueueException());
                 return CommandResult.rejected();
             }
         } else {
@@ -102,7 +104,11 @@ public class ReactRoleInitCmd implements Command {
         }
 
 
-        Message targetMessage = targetChannel.getMessageById(targetMessageId).complete();
+        Message targetMessage = null;
+        try {
+            targetMessage = targetChannel.getMessageById(targetMessageId).complete();
+        } catch (Exception e) {
+        }
         if (targetMessage == null) {
             EmbedBuilder builder = new EmbedBuilder();
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
@@ -110,7 +116,7 @@ public class ReactRoleInitCmd implements Command {
                 l, SnowflakeUtils.encode(targetMessageId), nlcp));
             builder.setColor(Color.RED);
             context.getFeedbackChannel().sendMessage(builder.build())
-                .queue();
+                .queue(null, handleQueueException());
             return CommandResult.rejected();
         }
 
@@ -120,7 +126,7 @@ public class ReactRoleInitCmd implements Command {
             builder.setDescription(this.loc.localizeToLocale(this.key("error.noperm.bot.body"), l, nlcp));
             builder.setColor(Color.RED);
             context.getFeedbackChannel().sendMessage(builder.build())
-                .queue();
+                .queue(null, handleQueueException());
             return CommandResult.handled();
         }
 
@@ -135,9 +141,16 @@ public class ReactRoleInitCmd implements Command {
             SnowflakeUtils.encode(targetMessageId), nlcp));
         builder.setColor(Color.GREEN);
         context.getFeedbackChannel().sendMessage(builder.build())
-            .queue();
+            .queue(null, handleQueueException());
 
         return CommandResult.ok();
+    }
+
+    @NotNull
+    private Consumer<Throwable> handleQueueException() {
+        return e -> {
+            throw new RuntimeException(e);
+        };
     }
 
     @Override

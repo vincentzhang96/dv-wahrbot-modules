@@ -18,6 +18,7 @@ import java.awt.*;
 import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static com.divinitor.discord.wahrbot.ext.mod.util.ReactionUtils.SERVER_STORE_MESSAGE_SET_KEY;
@@ -55,7 +56,7 @@ public class ReactRoleAddCmd implements Command {
         Message msg = context.getMessage();
         Guild server = context.getServer();
         long mid = 0;
-        Channel channel = null;
+        TextChannel channel = null;
 
         //  Message ID
         if (!line.hasNext()) {
@@ -98,7 +99,9 @@ public class ReactRoleAddCmd implements Command {
             if (!matches.isEmpty()) {
                 channel = matches.get(0);
             }
-        } else {
+        }
+
+        if (channel == null) {
             //  Try number parse
             try {
                 long cid = Long.parseUnsignedLong(next);
@@ -113,6 +116,8 @@ public class ReactRoleAddCmd implements Command {
             return rejectUnknownChannel(context, next);
         }
 
+        Message targetMsg = channel.getMessageById(mid).complete();
+
         ServerStore serverStore = context.getServerStorage();
         Set<String> config = serverStore.getObject(SERVER_STORE_MESSAGE_SET_KEY, Set.class);
         String encodedTargetMessageId = SnowflakeUtils.encode(mid);
@@ -121,6 +126,8 @@ public class ReactRoleAddCmd implements Command {
             return rejectUnregisteredReactRole(context, mid);
         }
 
+        //  Emoji
+        //  Only next() if we looked ahead and got a channel
         if (!defaultChannel) {
             if (!line.hasNext()) {
                 return rejectMissingArgs(context);
@@ -130,43 +137,87 @@ public class ReactRoleAddCmd implements Command {
         }
 
         String emojiKey;
-        if (next.startsWith("<:")) {
+        Emote customEmoji = null;
+        if (next.startsWith("<:") || next.startsWith("<a:")) {
             List<Emote> emotes = msg.getEmotes();
             if (emotes.isEmpty()) {
                 return rejectParseFail(context, next);
             }
-            Emote emote = emotes.get(0);
-            emojiKey = SnowflakeUtils.encode(emote);
+            customEmoji = emotes.get(0);
+            emojiKey = SnowflakeUtils.encode(customEmoji);
         } else {
             emojiKey = next;
         }
 
+        //  Role
+        //  Take remainder but still check that theres a next
+        if (!line.hasNext()) {
+            return rejectMissingArgs(context);
+        }
+        Role role = null;
 
+        next = line.remainder();
+        if (next.startsWith("<@&")) {
+            //  Role mention
+            List<Role> mentioned = msg.getMentionedRoles();
+            if (!mentioned.isEmpty()) {
+                role = mentioned.get(0);
+            }
+        } else if (next.startsWith("$")) {
+            long cid = SnowflakeUtils.decode(next);
+            role = server.getRoleById(cid);
+        } else {
+            //  Try number parse
+            try {
+                long cid = Long.parseUnsignedLong(next);
+                role = server.getRoleById(cid);
+            } catch (Exception e) {
+                //  Try lookup
+                List<Role> matches = server.getRolesByName(next, true);
+                if (!matches.isEmpty()) {
+                    role = matches.get(0);
+                }
+            }
+        }
 
-
-
-
-
-
+        if (role == null) {
+            return rejectUnknownRole(context, next);
+        }
 
         Map<String, String> rolesForMsg = serverStore.getObject(serverStoreMessageRoleMapKey(mid), Map.class);
 
-
-
-//        String encodedTargetMessageId = SnowflakeUtils.encode(targetMessageId);
-//        String encodedTargetChannelId = SnowflakeUtils.encode(targetChannel);
-//        config.add(ReactionUtils.messageChannelPair(encodedTargetChannelId, encodedTargetMessageId));
+        String encRoleId = SnowflakeUtils.encode(role);
+        rolesForMsg.put(emojiKey, encRoleId);
         this.listener.invalidateGuild(server);
+
+        if (customEmoji != null) {
+            targetMsg.addReaction(customEmoji).queue(null, handleQueueException());
+        } else {
+            targetMsg.addReaction(emojiKey).queue(null, handleQueueException());
+        }
 
         //  Respond
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle(this.loc.localizeToLocale(this.key("success.title"), l, nlcp));
-        builder.setDescription(this.loc.localizeToLocale(this.key("success.body"), l, nlcp));
+        String emojiStr;
+        if (customEmoji != null) {
+            emojiStr = customEmoji.getAsMention();
+        } else {
+            emojiStr = emojiKey;
+        }
+        builder.setDescription(this.loc.localizeToLocale(this.key("success.body"), l, emojiStr, role.getName(), nlcp));
         builder.setColor(Color.GREEN);
         context.getFeedbackChannel().sendMessage(builder.build())
-            .queue();
+            .queue(null, handleQueueException());
 
         return CommandResult.ok();
+    }
+
+    @NotNull
+    private Consumer<Throwable> handleQueueException() {
+        return e -> {
+            throw new RuntimeException(e);
+        };
     }
 
     @NotNull
@@ -178,7 +229,7 @@ public class ReactRoleAddCmd implements Command {
         builder.setDescription(this.loc.localizeToLocale(this.key("error.no_args"), l, nlcp));
         builder.setColor(Color.RED);
         context.getFeedbackChannel().sendMessage(builder.build())
-            .queue();
+            .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
 
@@ -192,7 +243,7 @@ public class ReactRoleAddCmd implements Command {
             target, nlcp));
         builder.setColor(Color.RED);
         context.getFeedbackChannel().sendMessage(builder.build())
-            .queue();
+            .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
 
@@ -206,7 +257,21 @@ public class ReactRoleAddCmd implements Command {
             target, nlcp));
         builder.setColor(Color.RED);
         context.getFeedbackChannel().sendMessage(builder.build())
-            .queue();
+            .queue(null, handleQueueException());
+        return CommandResult.rejected();
+    }
+
+    @NotNull
+    private CommandResult rejectUnknownRole(CommandContext context, String target) {
+        Map<String, Object> nlcp = context.getNamedLocalizationContextParams();
+        Locale l = context.getLocale();
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
+        builder.setDescription(this.loc.localizeToLocale(this.key("error.role_not_found"), l,
+            target, nlcp));
+        builder.setColor(Color.RED);
+        context.getFeedbackChannel().sendMessage(builder.build())
+            .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
 
@@ -220,7 +285,7 @@ public class ReactRoleAddCmd implements Command {
             SnowflakeUtils.encode(mid), nlcp));
         builder.setColor(Color.RED);
         context.getFeedbackChannel().sendMessage(builder.build())
-            .queue();
+            .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
 
@@ -234,7 +299,7 @@ public class ReactRoleAddCmd implements Command {
             msg, nlcp));
         builder.setColor(Color.RED);
         context.getFeedbackChannel().sendMessage(builder.build())
-            .queue();
+            .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
     @Override
