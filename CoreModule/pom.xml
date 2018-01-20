@@ -6,7 +6,7 @@
 
     <groupId>com.divinitor.discord.wahrbot.ext</groupId>
     <artifactId>CoreModule</artifactId>
-    <version>0.1.5</version>
+    <version>1.3.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -103,7 +103,7 @@
         <dependency>
             <groupId>com.divinitor.discord.wahrbot</groupId>
             <artifactId>WahrBotCore</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.3.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- Lombok -->
