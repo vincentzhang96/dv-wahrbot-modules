@@ -15,7 +15,7 @@ import static net.dv8tion.jda.core.Permission.MESSAGE_MANAGE;
 
 public class VanishCmd implements Command {
 
-    public static final String KEY = "com.divinitor.discord.wahrbot.ext.mod.commands.general.vanish";
+    public static final String KEY = "ext.mod.commands.general.vanish";
     private final Localizer loc;
 
     @Inject
@@ -37,6 +37,33 @@ public class VanishCmd implements Command {
                 .queue();
             return CommandResult.rejected();
         }
+
+        String amountStr = line.next();
+
+        int count;
+
+        try {
+            count = Integer.parseInt(amountStr);
+        } catch (NumberFormatException nfe) {
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
+            builder.setDescription(this.loc.localizeToLocale(this.key("error.invalid_number"), l, amountStr, nlcp));
+            builder.setColor(Color.RED);
+            context.getFeedbackChannel().sendMessage(builder.build())
+                .queue();
+            return CommandResult.rejected();
+        }
+
+        if (count < 0 || count > 200) {
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
+            builder.setDescription(this.loc.localizeToLocale(this.key("error.invalid_amount"), l, nlcp));
+            builder.setColor(Color.RED);
+            context.getFeedbackChannel().sendMessage(builder.build())
+                .queue();
+            return CommandResult.rejected();
+        }
+
 
 
         return null;
