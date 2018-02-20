@@ -6,6 +6,8 @@ import com.divinitor.discord.wahrbot.core.command.CommandResult;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.util.discord.MemberResolution;
 import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
+import com.divinitor.discord.wahrbot.ext.basics.BasicsModule;
+import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -95,6 +97,11 @@ public class InfoCmd implements Command {
                     statusBody = loc.localizeToLocale(key("status", "streaming"),
                         l,
                         onlineStatus, game.getName(), game.getUrl());
+                } else if (game.getType() == Game.GameType.LISTENING) {
+                    statusBody = loc.localizeToLocale(key("status", "listening"),
+                        l,
+                        onlineStatus, game.getName());
+                    BasicsModule.LOGGER.info(new GsonBuilder().setPrettyPrinting().create().toJson(game.asRichPresence()));
                 } else {
                     statusBody = loc.localizeToLocale(key("status", "playing"),
                         l,
