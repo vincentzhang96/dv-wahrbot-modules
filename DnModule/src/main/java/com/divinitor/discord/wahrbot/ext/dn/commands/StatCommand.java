@@ -67,8 +67,10 @@ public class StatCommand implements DnCommand {
         boolean isPercent = this.isPercentage(next);
         boolean cap = false;
 
+        float basePercent = this.calc.getBasePercent();
+        float capPercent = this.calc.getCapPercent();
         if (next.equalsIgnoreCase(this.loc.localizeToLocale("ext.dn.commands.stat.base.cap", locale, nlcp))) {
-            percent = this.calc.getCapPercent();
+            percent = capPercent;
             cap = true;
             isPercent = true;
         }
@@ -77,14 +79,12 @@ public class StatCommand implements DnCommand {
             if (percent < 0F) {
                 if (isPercent) {
                     percent = this.parsePercentStat(next);
-                    float minPercent = this.calc.getBasePercent();
-                    float maxPercent = this.calc.getCapPercent();
 
                     //  Cap it
-                    if (percent < minPercent) {
-                        percent = minPercent;
-                    } else if (percent > maxPercent) {
-                        percent = maxPercent;
+                    if (percent < basePercent) {
+                        percent = basePercent;
+                    } else if (percent > capPercent) {
+                        percent = capPercent;
                     }
                 } else {
                     stat = this.parseNumberStat(next, this.loc, locale);
@@ -105,7 +105,7 @@ public class StatCommand implements DnCommand {
 
         if (level != LEVEL_SUMMARY) {
             if (cap) {
-                stat = this.calc.getCap(level);
+                stat = (long) (this.calc.getCap(level) * (capPercent - basePercent));
             } else {
                 if (isPercent) {
                     stat = this.calc.calculate(percent, level);
@@ -141,7 +141,8 @@ public class StatCommand implements DnCommand {
 
                 for (int defLvl : DEFAULT_LEVELS) {
                     String levelTitle = this.loc.localizeToLocale(this.baseKey("level"), locale, defLvl, nlcp);
-                    stat = this.calc.getCap(defLvl);
+                    long capForLevel = this.calc.getCap(defLvl);
+                    stat = (long) (capForLevel * (percent - basePercent));
                     String statStr = this.loc.localizeToLocale(this.baseKey("stat.number"), locale,
                         stat, nlcp);
                     builder.addField(levelTitle, statStr, true);
