@@ -4,7 +4,6 @@ import com.divinitor.discord.wahrbot.core.WahrBot;
 import com.divinitor.discord.wahrbot.core.command.CommandLine;
 import com.divinitor.discord.wahrbot.core.config.dyn.DynConfigHandle;
 import com.divinitor.discord.wahrbot.core.config.dyn.DynConfigStore;
-import com.divinitor.discord.wahrbot.core.config.dyn.LongDynConfigHandle;
 import com.divinitor.discord.wahrbot.core.module.ModuleInformation;
 import com.divinitor.discord.wahrbot.core.module.ModuleLoadException;
 import com.divinitor.discord.wahrbot.core.store.UserStore;
@@ -33,16 +32,16 @@ import java.util.zip.ZipEntry;
 
 public class CommandHandler {
 
-    public static final String MANAGEMENT_KEY = "ext.core.management.id";
+    public static final String MANAGEMENT_KEY = "ext.core.management.ids";
     public static final String MANAGEMENT_PREFIX = "ext.core.management.prefix";
     private final CoreModule core;
-    private final LongDynConfigHandle managementAccountId;
+    private final DynConfigHandle managementAccountIds;
     private final DynConfigHandle managementPrefix;
 
     public CommandHandler(CoreModule core) {
         this.core = core;
         DynConfigStore configStore = this.core.getDynConfigStore();
-        this.managementAccountId = configStore.getLongHandle(MANAGEMENT_KEY);
+        this.managementAccountIds = configStore.getStringHandle(MANAGEMENT_KEY);
         this.managementPrefix = configStore.getStringHandle(MANAGEMENT_PREFIX);
     }
 
@@ -67,7 +66,7 @@ public class CommandHandler {
             return;
         }
 
-        if (author.getIdLong() != this.managementAccountId.getLong()) {
+        if (!this.checkId(author.getId())) {
             CoreModule.LOGGER.warn("User " + author.toString() + " does not have valid credentials for managing " +
                 "the bot; access denied");
             return;
@@ -123,6 +122,18 @@ public class CommandHandler {
             event.getMessage().getChannel().sendMessage("Command execution error: " + e.toString())
                 .queue();
         }
+    }
+
+    private boolean checkId(String userId) {
+        String vals = this.managementAccountIds.get();
+        String[] v = vals.split(",");
+        for (String s : v) {
+            if (s.equalsIgnoreCase(userId)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void setSuperAdmin(CommandLine line, PrivateMessageReceivedEvent event) {
