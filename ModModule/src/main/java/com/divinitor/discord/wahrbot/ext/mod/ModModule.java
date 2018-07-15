@@ -87,13 +87,10 @@ public class ModModule implements Module {
 
         this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".reactrole");
 
-//
-//        this.registerBundle(this.reactRoleInitCmd.key());
-//        this.registerBundle(this.reactRoleAddCmd.key());
-//
-//        this.reactRoleRegistry = this.modRegistry.makeRegistries(REACTROLE_KEY);
-//        this.reactRoleRegistry.registerCommand(this.reactRoleInitCmd, this.reactRoleInitCmd.key());
-//        this.reactRoleRegistry.registerCommand(this.reactRoleAddCmd, this.reactRoleAddCmd.key());
+        this.reactRoleRegistry = this.modRegistry.makeRegistries(REACTROLE_KEY);
+
+        this.reactRoleAddCmd.register(this.reactRoleRegistry, loc);
+        this.reactRoleInitCmd.register(this.reactRoleRegistry, loc);
 
         this.bot.getEventBus().register(this.joinLeaveListener);
         this.bot.getEventBus().register(this.reactionService);
@@ -126,6 +123,9 @@ public class ModModule implements Module {
 
         this.setFarewellCmd.unregister(this.modRegistry, loc);
         this.setFarewellChannelCmd.unregister(this.modRegistry, loc);
+
+        this.reactRoleAddCmd.unregister(this.reactRoleRegistry, loc);
+        this.reactRoleInitCmd.unregister(this.reactRoleRegistry, loc);
 
         loc.unregisterBundle(MODULE_KEY);
         loc.unregisterBundle(REACTROLE_KEY);
