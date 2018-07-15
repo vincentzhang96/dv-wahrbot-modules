@@ -28,6 +28,7 @@ import static com.divinitor.discord.wahrbot.ext.mod.util.ReactionUtils.serverSto
 public class ReactRoleAddCmd extends AbstractKeyedCommand {
     public static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    public static final String COMMAND_ID = "add";
     public static final String KEY = ModModule.REACTROLE_KEY + ".commands." + COMMAND_ID;
     private final Localizer loc;
     private ReactionService listener;
