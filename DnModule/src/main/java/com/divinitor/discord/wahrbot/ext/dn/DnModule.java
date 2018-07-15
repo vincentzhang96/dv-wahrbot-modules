@@ -31,7 +31,6 @@ public class DnModule implements Module {
     private CommandRegistry registry;
 
     private DnStatService statService;
-    private StatCommand fdCommand;
     private StatCommand fdLinCommand;
     private StatCommand critCommand;
     private StatCommand critdmgCommand;
@@ -54,7 +53,6 @@ public class DnModule implements Module {
         this.statService.init();
 
         StatCommand.StatCommandFactory scFactory = injector.getInstance(StatCommand.StatCommandFactory.class);
-        this.fdCommand = scFactory.create(DnStatService.STAT_FD_KEY);
         this.fdLinCommand = scFactory.create(DnStatService.STAT_FD_LINEAR_KEY);
         this.critCommand = scFactory.create(DnStatService.STAT_CRIT_KEY);
         this.critdmgCommand = scFactory.create(DnStatService.STAT_CRITDMG_KEY);
@@ -64,7 +62,6 @@ public class DnModule implements Module {
         this.registry = this.dispatcher.getRootRegistry().makeRegistries(MODULE_KEY);
 
         Localizer loc = this.bot.getLocalizer();
-        this.fdCommand.register(loc, this.registry);
         this.fdLinCommand.register(loc, this.registry);
         this.critCommand.register(loc, this.registry);
         this.critdmgCommand.register(loc, this.registry);
@@ -76,7 +73,6 @@ public class DnModule implements Module {
     public void shutDown() {
         this.statService.shutdown();
         Localizer loc = this.bot.getLocalizer();
-        this.fdCommand.unregister(loc, this.registry);
         this.fdLinCommand.unregister(loc, this.registry);
         this.critCommand.unregister(loc, this.registry);
         this.critdmgCommand.unregister(loc, this.registry);
