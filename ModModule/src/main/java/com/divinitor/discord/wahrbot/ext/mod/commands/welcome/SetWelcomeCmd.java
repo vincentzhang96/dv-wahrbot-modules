@@ -2,6 +2,7 @@ package com.divinitor.discord.wahrbot.ext.mod.commands.welcome;
 
 import com.divinitor.discord.wahrbot.core.command.*;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
+import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.commands.JLMessageHelper;
 import com.google.inject.Inject;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -10,11 +11,11 @@ import net.dv8tion.jda.core.Permission;
 import java.awt.*;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringJoiner;
 
-public class SetWelcomeCmd implements Command {
+public class SetWelcomeCmd extends AbstractKeyedCommand {
 
-    public static final String KEY = "com.divinitor.discord.wahrbot.ext.mod.commands.welcome.set";
+    public static final String COMMAND_ID = "welcome.set";
+    public static final String KEY = ModModule.MODULE_KEY + "." + COMMAND_ID;
     private final Localizer loc;
 
     @Inject
@@ -77,13 +78,13 @@ public class SetWelcomeCmd implements Command {
         );
     }
 
-    public String key(String... children) {
-        StringJoiner joiner = new StringJoiner(".");
-        joiner.add(KEY);
-        for (String child : children) {
-            joiner.add(child);
-        }
+    @Override
+    public String getKey() {
+        return KEY;
+    }
 
-        return joiner.toString();
+    @Override
+    protected String getResourcePath() {
+        return ModModule.BASE_MODULE_PATH + "." + COMMAND_ID;
     }
 }
