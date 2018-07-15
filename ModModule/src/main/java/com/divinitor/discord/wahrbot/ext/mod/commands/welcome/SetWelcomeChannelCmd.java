@@ -248,7 +248,6 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
         );
     }
 
-
     @Override
     public String getKey() {
         return KEY;
