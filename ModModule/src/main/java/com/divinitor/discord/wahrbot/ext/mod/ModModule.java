@@ -82,7 +82,8 @@ public class ModModule implements Module {
         this.setWelcomeCmd.register(this.modRegistry, loc);
         this.setWelcomeChannelCmd.register(this.modRegistry, loc);
 
-
+        this.setFarewellCmd.register(this.modRegistry, loc);
+        this.setFarewellChannelCmd.register(this.modRegistry, loc);
 
 //        this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".reactrole");
 //
@@ -121,6 +122,9 @@ public class ModModule implements Module {
         this.setWelcomeCmd.unregister(this.modRegistry, loc);
         this.setWelcomeDMCmd.unregister(this.modRegistry, loc);
         this.setWelcomeChannelCmd.unregister(this.modRegistry, loc);
+
+        this.setFarewellCmd.unregister(this.modRegistry, loc);
+        this.setFarewellChannelCmd.unregister(this.modRegistry, loc);
 
         loc.unregisterBundle(MODULE_KEY);
 //        loc.unregisterBundle(REACTROLE_KEY);
