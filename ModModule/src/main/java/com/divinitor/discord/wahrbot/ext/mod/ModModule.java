@@ -32,7 +32,7 @@ public class ModModule implements Module {
     public static final String MODULE_KEY = "ext.mod";
     public static final String BASE_MODULE_PATH = "com.divinitor.discord.wahrbot.ext.mod.commands";
     public static final String REACTROLE_KEY = "ext.mod.commands.reactrole";
-    public static final String REACTROLE_PATH = "com.divinitor.discord.wahrbot.ext.mod.reactrole.commands";
+    public static final String REACTROLE_PATH = "com.divinitor.discord.wahrbot.ext.mod.commands.reactrole";
 
     private final WahrBot bot;
     private final CommandDispatcher dispatcher;
@@ -85,7 +85,8 @@ public class ModModule implements Module {
         this.setFarewellCmd.register(this.modRegistry, loc);
         this.setFarewellChannelCmd.register(this.modRegistry, loc);
 
-//        this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".reactrole");
+        this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".reactrole");
+
 //
 //        this.registerBundle(this.reactRoleInitCmd.key());
 //        this.registerBundle(this.reactRoleAddCmd.key());
@@ -127,6 +128,6 @@ public class ModModule implements Module {
         this.setFarewellChannelCmd.unregister(this.modRegistry, loc);
 
         loc.unregisterBundle(MODULE_KEY);
-//        loc.unregisterBundle(REACTROLE_KEY);
+        loc.unregisterBundle(REACTROLE_KEY);
     }
 }
