@@ -31,7 +31,7 @@ public class ModModule implements Module {
     public static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     public static final String MODULE_KEY = "ext.mod";
     public static final String BASE_MODULE_PATH = "com.divinitor.discord.wahrbot.ext.mod.commands";
-    public static final String REACTROLE_KEY = "ext.mod.reactrole";
+    public static final String REACTROLE_KEY = "ext.mod.commands.reactrole";
     public static final String REACTROLE_PATH = "com.divinitor.discord.wahrbot.ext.mod.reactrole.commands";
 
     private final WahrBot bot;
@@ -84,14 +84,14 @@ public class ModModule implements Module {
 
 
 
-        this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".reactrole");
-
-        this.registerBundle(this.reactRoleInitCmd.key());
-        this.registerBundle(this.reactRoleAddCmd.key());
-
-        this.reactRoleRegistry = this.modRegistry.makeRegistries(REACTROLE_KEY);
-        this.reactRoleRegistry.registerCommand(this.reactRoleInitCmd, this.reactRoleInitCmd.key());
-        this.reactRoleRegistry.registerCommand(this.reactRoleAddCmd, this.reactRoleAddCmd.key());
+//        this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".reactrole");
+//
+//        this.registerBundle(this.reactRoleInitCmd.key());
+//        this.registerBundle(this.reactRoleAddCmd.key());
+//
+//        this.reactRoleRegistry = this.modRegistry.makeRegistries(REACTROLE_KEY);
+//        this.reactRoleRegistry.registerCommand(this.reactRoleInitCmd, this.reactRoleInitCmd.key());
+//        this.reactRoleRegistry.registerCommand(this.reactRoleAddCmd, this.reactRoleAddCmd.key());
 
         this.bot.getEventBus().register(this.joinLeaveListener);
         this.bot.getEventBus().register(this.reactionService);
@@ -122,14 +122,7 @@ public class ModModule implements Module {
         this.setWelcomeDMCmd.unregister(this.modRegistry, loc);
         this.setWelcomeChannelCmd.unregister(this.modRegistry, loc);
 
-        this.modRegistry.unregisterCommand(this.setFarewellCmd.key());
-        this.modRegistry.unregisterCommand(this.setFarewellChannelCmd.key());
-
-        loc.unregisterBundle(this.setWelcomeChannelCmd.key());
-        loc.unregisterBundle(this.setFarewellCmd.key());
-        loc.unregisterBundle(this.setFarewellChannelCmd.key());
-
         loc.unregisterBundle(MODULE_KEY);
-        loc.unregisterBundle(REACTROLE_KEY);
+//        loc.unregisterBundle(REACTROLE_KEY);
     }
 }

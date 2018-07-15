@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unchecked")
 public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
     public static final String COMMAND_ID = "welcome.channel";
-    public static final String KEY = ModModule.MODULE_KEY + "." + COMMAND_ID;
+    public static final String KEY = ModModule.MODULE_KEY + ".commands." + COMMAND_ID;
     private final Localizer loc;
 
     @Inject

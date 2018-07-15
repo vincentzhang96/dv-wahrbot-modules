@@ -15,7 +15,7 @@ import java.util.Map;
 public class SetWelcomeCmd extends AbstractKeyedCommand {
 
     public static final String COMMAND_ID = "welcome.set";
-    public static final String KEY = ModModule.MODULE_KEY + "." + COMMAND_ID;
+    public static final String KEY = ModModule.MODULE_KEY + ".commands." + COMMAND_ID;
     private final Localizer loc;
 
     @Inject
