@@ -9,6 +9,7 @@ import com.divinitor.discord.wahrbot.core.i18n.ResourceBundleBundle;
 import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
 import com.divinitor.discord.wahrbot.ext.dn.commands.EffectiveHPCommand;
+import com.divinitor.discord.wahrbot.ext.dn.commands.LabPointsCommand;
 import com.divinitor.discord.wahrbot.ext.dn.commands.StatCommand;
 import com.divinitor.discord.wahrbot.ext.dn.services.DnStatService;
 import com.divinitor.discord.wahrbot.ext.dn.util.QueueExceptionHandler;
@@ -36,6 +37,7 @@ public class DnModule implements Module {
     private StatCommand critdmgCommand;
     private StatCommand defenseCommand;
     private EffectiveHPCommand ehpCommand;
+    private LabPointsCommand lpCommand;
 
     @Inject
     public DnModule(WahrBot bot, CommandDispatcher dispatcher) {
@@ -59,6 +61,8 @@ public class DnModule implements Module {
         this.defenseCommand = scFactory.create(DnStatService.STAT_DEFENSE_KEY);
         this.ehpCommand = injector.getInstance(EffectiveHPCommand.class);
 
+        this.lpCommand = injector.getInstance(LabPointsCommand.class);
+
         this.registry = this.dispatcher.getRootRegistry().makeRegistries(MODULE_KEY);
 
         Localizer loc = this.bot.getLocalizer();
@@ -67,6 +71,7 @@ public class DnModule implements Module {
         this.critdmgCommand.register(loc, this.registry);
         this.defenseCommand.register(loc, this.registry);
 //        this.ehpCommand.register(loc, this.registry);
+        this.lpCommand.register(this.registry, loc);
     }
 
     @Override
@@ -77,6 +82,8 @@ public class DnModule implements Module {
         this.critCommand.unregister(loc, this.registry);
         this.critdmgCommand.unregister(loc, this.registry);
         this.defenseCommand.unregister(loc, this.registry);
+
+        this.lpCommand.unregister(this.registry, loc);
     }
 
     private void registerBundle(String key, String bundleLocation) {
