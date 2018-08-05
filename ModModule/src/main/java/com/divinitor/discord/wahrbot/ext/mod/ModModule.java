@@ -85,7 +85,7 @@ public class ModModule implements Module {
         this.setFarewellCmd.register(this.modRegistry, loc);
         this.setFarewellChannelCmd.register(this.modRegistry, loc);
 
-        this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".reactrole");
+        this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".rr");
 
         this.reactRoleRegistry = this.modRegistry.makeRegistries(REACTROLE_KEY);
 

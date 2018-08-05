@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 public class ReactRoleInitCmd extends AbstractKeyedCommand {
     public static final String COMMAND_ID = "init";
-    public static final String KEY = ModModule.MODULE_KEY + ".commands." + COMMAND_ID;
+    public static final String KEY = ModModule.REACTROLE_KEY + ".commands." + COMMAND_ID;
     private final Localizer loc;
     private ReactionService listener;
 
