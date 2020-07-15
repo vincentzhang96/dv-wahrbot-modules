@@ -5,15 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.divinitor.discord.wahrbot.ext</groupId>
-    <artifactId>FunModule</artifactId>
-    <version>1.5.3</version>
+    <artifactId>VahrTools</artifactId>
+    <version>1.5.5</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mainClass>com.divinitor.discord.wahrbot.ext.fun.FunModule</mainClass>
-        <modId>fun</modId>
+        <mainClass>com.divinitor.discord.wahrbot.ext.vahr.VahrModule</mainClass>
+        <modId>vahr</modId>
     </properties>
-
 
     <build>
         <resources>
