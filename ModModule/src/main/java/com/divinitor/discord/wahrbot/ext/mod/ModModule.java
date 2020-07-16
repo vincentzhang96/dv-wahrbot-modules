@@ -3,6 +3,7 @@ package com.divinitor.discord.wahrbot.ext.mod;
 import com.divinitor.discord.wahrbot.core.WahrBot;
 import com.divinitor.discord.wahrbot.core.command.CommandDispatcher;
 import com.divinitor.discord.wahrbot.core.command.CommandRegistry;
+import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.i18n.ResourceBundleBundle;
 import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
@@ -28,8 +29,11 @@ import static net.dv8tion.jda.core.Permission.*;
 public class ModModule implements Module {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    public static final String CORE_REF = "com.divinitor.discord.wahrbot.ext.mod.commands.core";
-    public static final String REACTROLE_REF = "com.divinitor.discord.wahrbot.ext.mod.commands.reactrole.core";
+    public static final String MODULE_KEY = "ext.mod";
+    public static final String BASE_MODULE_PATH = "com.divinitor.discord.wahrbot.ext.mod.commands";
+    public static final String REACTROLE_KEY = "ext.mod.commands.reactrole";
+    public static final String REACTROLE_PATH = "com.divinitor.discord.wahrbot.ext.mod.commands.reactrole";
+
     private final WahrBot bot;
     private final CommandDispatcher dispatcher;
     private CommandRegistry modRegistry;
@@ -65,56 +69,28 @@ public class ModModule implements Module {
 
     @Override
     public void init(ModuleContext context) throws Exception {
-        this.bot.getLocalizer().registerBundle(CORE_REF,
-            new ResourceBundleBundle(CORE_REF,
-                this.getClass().getClassLoader()));
+        this.registerBundle(MODULE_KEY, BASE_MODULE_PATH + ".mod");
 
-        this.registerBundle(this.setWelcomeCmd.key());
-        this.registerBundle(this.setWelcomeDMCmd.key());
-        this.registerBundle(this.setWelcomeChannelCmd.key());
-        this.registerBundle(this.setFarewellCmd.key());
-        this.registerBundle(this.setFarewellChannelCmd.key());
-
-        this.modRegistry = this.dispatcher.getRootRegistry()
-            .makeRegistries("com.divinitor.discord.wahrbot.ext.mod.commands.mod");
-
+        Localizer loc = this.bot.getLocalizer();
+        this.modRegistry = this.dispatcher.getRootRegistry().makeRegistries(MODULE_KEY);
         this.modRegistry.setUserPermissionConstraints(
             isOwner()
-                .or(hasAny(ADMINISTRATOR, MESSAGE_MANAGE))
+                .or(hasAny(ADMINISTRATOR, MESSAGE_MANAGE, MANAGE_SERVER, MANAGE_PERMISSIONS, MANAGE_ROLES))
         );
 
-        this.modRegistry.setBotPermissionConstraints(
-            hasAny(
-                ADMINISTRATOR,
-                MESSAGE_MANAGE,
-                KICK_MEMBERS,
-                BAN_MEMBERS,
-                MANAGE_CHANNEL,
-                MANAGE_SERVER,
-                NICKNAME_CHANGE,
-                NICKNAME_MANAGE,
-                MANAGE_ROLES,
-                MANAGE_PERMISSIONS)
-        );
+        this.setWelcomeDMCmd.register(this.modRegistry, loc);
+        this.setWelcomeCmd.register(this.modRegistry, loc);
+        this.setWelcomeChannelCmd.register(this.modRegistry, loc);
 
-        this.modRegistry.registerCommand(this.setWelcomeCmd, this.setWelcomeCmd.key());
-        this.modRegistry.registerCommand(this.setWelcomeDMCmd, this.setWelcomeDMCmd.key());
-        this.modRegistry.registerCommand(this.setWelcomeChannelCmd, this.setWelcomeChannelCmd.key());
-        this.modRegistry.registerCommand(this.setFarewellCmd, this.setFarewellCmd.key());
-        this.modRegistry.registerCommand(this.setFarewellChannelCmd, this.setFarewellChannelCmd.key());
+        this.setFarewellCmd.register(this.modRegistry, loc);
+        this.setFarewellChannelCmd.register(this.modRegistry, loc);
 
+        this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".rr");
 
-        this.bot.getLocalizer().registerBundle(REACTROLE_REF,
-            new ResourceBundleBundle(REACTROLE_REF,
-                this.getClass().getClassLoader()));
+        this.reactRoleRegistry = this.modRegistry.makeRegistries(REACTROLE_KEY);
 
-        this.registerBundle(this.reactRoleInitCmd.key());
-        this.registerBundle(this.reactRoleAddCmd.key());
-
-        this.reactRoleRegistry = this.modRegistry.makeRegistries(
-            "com.divinitor.discord.wahrbot.ext.mod.commands.mod.reactrole");
-        this.reactRoleRegistry.registerCommand(this.reactRoleInitCmd, this.reactRoleInitCmd.key());
-        this.reactRoleRegistry.registerCommand(this.reactRoleAddCmd, this.reactRoleAddCmd.key());
+        this.reactRoleAddCmd.register(this.reactRoleRegistry, loc);
+        this.reactRoleInitCmd.register(this.reactRoleRegistry, loc);
 
         this.bot.getEventBus().register(this.joinLeaveListener);
         this.bot.getEventBus().register(this.reactionService);
@@ -125,30 +101,33 @@ public class ModModule implements Module {
     }
 
     private void registerBundle(String key) {
+        this.registerBundle(key, key);
+    }
+
+    private void registerBundle(String key, String bundleLocation) {
         this.bot.getLocalizer().registerBundle(key,
-            new ResourceBundleBundle(key,
+            new ResourceBundleBundle(bundleLocation,
                 this.getClass().getClassLoader()));
     }
 
     @Override
     public void shutDown() {
+        Localizer loc = this.bot.getLocalizer();
         this.reactionService.stop();
         this.bot.getEventBus().unregister(this.reactionService);
         this.bot.getEventBus().unregister(this.joinLeaveListener);
 
-        this.modRegistry.unregisterCommand(this.setWelcomeCmd.key());
-        this.modRegistry.unregisterCommand(this.setWelcomeDMCmd.key());
-        this.modRegistry.unregisterCommand(this.setWelcomeChannelCmd.key());
-        this.modRegistry.unregisterCommand(this.setFarewellCmd.key());
-        this.modRegistry.unregisterCommand(this.setFarewellChannelCmd.key());
+        this.setWelcomeCmd.unregister(this.modRegistry, loc);
+        this.setWelcomeDMCmd.unregister(this.modRegistry, loc);
+        this.setWelcomeChannelCmd.unregister(this.modRegistry, loc);
 
-        this.bot.getLocalizer().unregisterBundle(this.setWelcomeCmd.key());
-        this.bot.getLocalizer().unregisterBundle(this.setWelcomeDMCmd.key());
-        this.bot.getLocalizer().unregisterBundle(this.setWelcomeChannelCmd.key());
-        this.bot.getLocalizer().unregisterBundle(this.setFarewellCmd.key());
-        this.bot.getLocalizer().unregisterBundle(this.setFarewellChannelCmd.key());
+        this.setFarewellCmd.unregister(this.modRegistry, loc);
+        this.setFarewellChannelCmd.unregister(this.modRegistry, loc);
 
-        this.bot.getLocalizer().unregisterBundle(CORE_REF);
-        this.bot.getLocalizer().unregisterBundle(REACTROLE_REF);
+        this.reactRoleAddCmd.unregister(this.reactRoleRegistry, loc);
+        this.reactRoleInitCmd.unregister(this.reactRoleRegistry, loc);
+
+        loc.unregisterBundle(MODULE_KEY);
+        loc.unregisterBundle(REACTROLE_KEY);
     }
 }

@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.entities.User;
 
 import java.awt.*;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringJoiner;
 
 public class AvatarCmd implements Command {
@@ -58,6 +59,7 @@ public class AvatarCmd implements Command {
     private Message forMember(Member member, CommandContext context) {
         User user = member.getUser();
         Locale l = context.getLocale();
+        Map<String, Object> nlcp = context.getNamedLocalizationContextParams();
 
         EmbedBuilder builder = new EmbedBuilder();
 
@@ -78,7 +80,7 @@ public class AvatarCmd implements Command {
         //  FOOTER
         {
             builder.setFooter(loc.localizeToLocale(key("footer"), l,
-                user.getId(), SnowflakeUtils.encode(user.getIdLong())), null);
+                user.getId(), SnowflakeUtils.encode(user.getIdLong()), nlcp), null);
         }
 
         return new MessageBuilder()

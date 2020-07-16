@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringJoiner;
 
 public class InfoCmd implements Command {
@@ -68,6 +69,7 @@ public class InfoCmd implements Command {
         //  TODO
         User user = member.getUser();
         Locale l = context.getLocale();
+        Map<String, Object> nlcp = context.getNamedLocalizationContextParams();
 
         EmbedBuilder builder = new EmbedBuilder();
 
@@ -190,7 +192,7 @@ public class InfoCmd implements Command {
         //  FOOTER
         {
             builder.setFooter(loc.localizeToLocale(key("footer"), l,
-                user.getId(), SnowflakeUtils.encode(user.getIdLong())), null);
+                user.getId(), SnowflakeUtils.encode(user.getIdLong()), nlcp), null);
         }
 
         return new MessageBuilder()

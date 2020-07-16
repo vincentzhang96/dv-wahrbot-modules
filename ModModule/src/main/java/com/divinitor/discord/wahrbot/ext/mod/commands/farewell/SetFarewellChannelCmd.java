@@ -3,6 +3,7 @@ package com.divinitor.discord.wahrbot.ext.mod.commands.farewell;
 import com.divinitor.discord.wahrbot.core.command.*;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
+import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.commands.JLMessageHelper;
 import com.google.inject.Inject;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -16,8 +17,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
-public class SetFarewellChannelCmd implements Command {
-    public static final String KEY = "com.divinitor.discord.wahrbot.ext.mod.commands.farewell.channel";
+public class SetFarewellChannelCmd extends AbstractKeyedCommand {
+    public static final String COMMAND_ID = "farewell.channel";
+    public static final String KEY = ModModule.MODULE_KEY + ".commands." + COMMAND_ID;
     private final Localizer loc;
 
     @Inject
@@ -246,13 +248,13 @@ public class SetFarewellChannelCmd implements Command {
         );
     }
 
-    public String key(String... children) {
-        StringJoiner joiner = new StringJoiner(".");
-        joiner.add(KEY);
-        for (String child : children) {
-            joiner.add(child);
-        }
+    @Override
+    public String getKey() {
+        return KEY;
+    }
 
-        return joiner.toString();
+    @Override
+    protected String getResourcePath() {
+        return ModModule.BASE_MODULE_PATH + "." + COMMAND_ID;
     }
 }

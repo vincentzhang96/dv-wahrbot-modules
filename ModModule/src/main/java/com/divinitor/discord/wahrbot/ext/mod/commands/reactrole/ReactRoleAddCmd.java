@@ -4,6 +4,7 @@ import com.divinitor.discord.wahrbot.core.command.*;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.store.ServerStore;
 import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
+import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.listeners.ReactionService;
 import com.divinitor.discord.wahrbot.ext.mod.util.ReactionUtils;
 import com.google.inject.Inject;
@@ -24,10 +25,11 @@ import java.util.regex.Pattern;
 import static com.divinitor.discord.wahrbot.ext.mod.util.ReactionUtils.SERVER_STORE_MESSAGE_SET_KEY;
 import static com.divinitor.discord.wahrbot.ext.mod.util.ReactionUtils.serverStoreMessageRoleMapKey;
 
-public class ReactRoleAddCmd implements Command {
+public class ReactRoleAddCmd extends AbstractKeyedCommand {
     public static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String KEY = "com.divinitor.discord.wahrbot.ext.mod.commands.reactrole.commands.add";
+    public static final String COMMAND_ID = "add";
+    public static final String KEY = ModModule.REACTROLE_KEY + ".commands." + COMMAND_ID;
     private final Localizer loc;
     private ReactionService listener;
 
@@ -318,13 +320,13 @@ public class ReactRoleAddCmd implements Command {
         );
     }
 
-    public String key(String... children) {
-        StringJoiner joiner = new StringJoiner(".");
-        joiner.add(KEY);
-        for (String child : children) {
-            joiner.add(child);
-        }
+    @Override
+    public String getKey() {
+        return KEY;
+    }
 
-        return joiner.toString();
+    @Override
+    protected String getResourcePath() {
+        return ModModule.REACTROLE_PATH + "." + COMMAND_ID;
     }
 }

@@ -35,7 +35,7 @@ public class JoinLeaveListener {
         if (message == null) {
             return;
         } else if (message.isEmpty()) {
-            message = loc.localize("com.divinitor.discord.wahrbot.ext.mod.jl.welcome.default");
+            message = loc.localize("ext.mod.jl.welcome.default");
         }
 
         List<TextChannel> postChannels;
@@ -66,7 +66,7 @@ public class JoinLeaveListener {
         if (message == null) {
             return;
         } else if (message.isEmpty()) {
-            message = loc.localize("com.divinitor.discord.wahrbot.ext.mod.jl.welcome.dm.default");
+            message = loc.localize("ext.mod.jl.welcome.dm.default");
         }
 
         String msg = JLMessageHelper.format(message, event.getMember());
@@ -85,7 +85,7 @@ public class JoinLeaveListener {
         if (message == null) {
             return;
         } else if (message.isEmpty()) {
-            message = loc.localize("com.divinitor.discord.wahrbot.ext.mod.jl.farewell.default");
+            message = loc.localize("ext.mod.jl.farewell.default");
         }
 
         List<TextChannel> postChannels;
