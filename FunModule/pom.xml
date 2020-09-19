@@ -6,7 +6,7 @@
 
     <groupId>com.divinitor.discord.wahrbot.ext</groupId>
     <artifactId>FunModule</artifactId>
-    <version>1.5.4</version>
+    <version>1.5.17</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
