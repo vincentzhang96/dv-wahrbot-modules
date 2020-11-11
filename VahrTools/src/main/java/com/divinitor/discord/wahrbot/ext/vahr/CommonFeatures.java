@@ -4,10 +4,10 @@ import com.divinitor.discord.wahrbot.core.WahrBot;
 import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class CommonFeatures {
 
@@ -57,7 +57,7 @@ public class CommonFeatures {
                 VahrModule.LOGGER.info("Banning sex bot spammer {}#{} ({}) from {} ({})",
                     author.getUser().getName(), author.getUser().getDiscriminator(), SnowflakeUtils.encode(author.getUser()),
                     event.getGuild().getName(), SnowflakeUtils.encode(event.getGuild()));
-                event.getGuild().getController().ban(author, 1, "Auto spam bot").queue((v) -> {
+                event.getGuild().ban(author, 1, "Auto spam bot").queue((v) -> {
                     VahrModule.LOGGER.info("Successfully banned {}#{} ({})",
                         author.getUser().getName(), author.getUser().getDiscriminator(), SnowflakeUtils.encode(author.getUser()));
                 }, throwable -> VahrModule.LOGGER.warn("Failed to ban {}#{} ({})",

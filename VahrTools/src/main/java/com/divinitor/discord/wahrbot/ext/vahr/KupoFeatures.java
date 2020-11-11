@@ -3,7 +3,7 @@ package com.divinitor.discord.wahrbot.ext.vahr;
 import com.divinitor.discord.wahrbot.core.WahrBot;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class KupoFeatures {
     private final WahrBot bot;
