@@ -8,9 +8,9 @@ import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.listeners.ReactionService;
 import com.divinitor.discord.wahrbot.ext.mod.util.ReactionUtils;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +118,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
             return rejectUnknownChannel(context, next);
         }
 
-        Message targetMsg = channel.getMessageById(mid).complete();
+        Message targetMsg = channel.retrieveMessageById(mid).complete();
 
         ServerStore serverStore = context.getServerStorage();
         Set<String> config = serverStore.getObject(SERVER_STORE_MESSAGE_SET_KEY, Set.class);

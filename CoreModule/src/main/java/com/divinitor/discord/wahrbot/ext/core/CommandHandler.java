@@ -11,11 +11,11 @@ import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
 import com.divinitor.discord.wahrbot.core.util.gson.StandardGson;
 import com.github.zafarkhaja.semver.Version;
 import com.mashape.unirest.http.Unirest;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.priv.GenericPrivateMessageEvent;
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.priv.GenericPrivateMessageEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 
 import java.io.IOException;
 import java.io.InputStream;

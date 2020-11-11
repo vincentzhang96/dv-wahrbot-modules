@@ -15,10 +15,10 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
 import lombok.Setter;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.SelfUser;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.SelfUser;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -211,7 +211,7 @@ public class StabCommand extends AbstractKeyedCommand {
         return keys.get(this.random.nextInt(keys.size()));
     }
 
-    private boolean checkRateLimit(Member member, Channel channel) {
+    private boolean checkRateLimit(Member member, TextChannel channel) {
         if (!this.isSudo(member)) {
             RateLimiter limiter = this.rateLimiters.getUnchecked(member.getUser().getId() + "." + channel.getId());
             if (limiter.tryMark() > 0) {

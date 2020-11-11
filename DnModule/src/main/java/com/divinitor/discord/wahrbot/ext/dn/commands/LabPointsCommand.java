@@ -8,7 +8,7 @@ import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.ext.dn.DnModule;
 import com.divinitor.discord.wahrbot.ext.dn.util.QueueExceptionHandler;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;

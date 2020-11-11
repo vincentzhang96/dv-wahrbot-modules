@@ -11,10 +11,10 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.eventbus.Subscribe;
 import gnu.trove.set.hash.TLongHashSet;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
-import net.dv8tion.jda.core.exceptions.HierarchyException;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.api.exceptions.HierarchyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +128,7 @@ public class ReactionService {
         }
 
         try {
-            guild.getController().addSingleRoleToMember(member, role).reason("Adding reactrole managed role due to reaction being added")
+            guild.addRoleToMember(member, role).reason("Adding reactrole managed role due to reaction being added")
                 .queue(null, (ex) -> {
                     LOGGER.warn("Failed to update roles for {}#{} ({}): Tried adding role {} ({}) but failed",
                         user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user),
@@ -191,7 +191,7 @@ public class ReactionService {
         }
 
         try {
-            guild.getController().removeSingleRoleFromMember(member, role).reason("Removing reactrole managed role due to reaction being removed")
+            guild.removeRoleFromMember(member, role).reason("Removing reactrole managed role due to reaction being removed")
                 .queue(null, (ex) -> {
                     LOGGER.warn("Failed to update roles for {}#{} ({}): Tried deleting role {} ({}) but failed",
                         user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user),

@@ -9,13 +9,13 @@ import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
 import com.divinitor.discord.wahrbot.ext.basics.BasicsModule;
 import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 
 import java.awt.*;
 import java.time.Duration;
@@ -23,10 +23,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringJoiner;
 
 public class InfoCmd implements Command {
 
@@ -88,35 +86,36 @@ public class InfoCmd implements Command {
         }
 
         //  STATUS
-        {
-            String statusBody;
-            String onlineStatus = loc.localizeToLocale(key("status", member.getOnlineStatus().getKey()), l);
-            Game game = member.getGame();
-            if (game == null) {
-                statusBody = onlineStatus;
-            } else {
-                if (game.getType() == Game.GameType.STREAMING) {
-                    statusBody = loc.localizeToLocale(key("status", "streaming"),
-                        l,
-                        onlineStatus, game.getName(), game.getUrl());
-                } else if (game.getType() == Game.GameType.LISTENING) {
-                    statusBody = loc.localizeToLocale(key("status", "listening"),
-                        l,
-                        onlineStatus, game.getName());
-                    BasicsModule.LOGGER.info(new GsonBuilder().setPrettyPrinting().create().toJson(game.asRichPresence()));
-                } else {
-                    statusBody = loc.localizeToLocale(key("status", "playing"),
-                        l,
-                        onlineStatus, game.getName());
-                }
-            }
-
-            builder.addField(loc.localizeToLocale(key("status"), l), statusBody, true);
-        }
+        // TODO
+//        {
+//            String statusBody;
+//            String onlineStatus = loc.localizeToLocale(key("status", member.getOnlineStatus().getKey()), l);
+//            List<Activity> games = member.getActivities();
+//            if (game == null) {
+//                statusBody = onlineStatus;
+//            } else {
+//                if (game.getType() == Game.GameType.STREAMING) {
+//                    statusBody = loc.localizeToLocale(key("status", "streaming"),
+//                        l,
+//                        onlineStatus, game.getName(), game.getUrl());
+//                } else if (game.getType() == Game.GameType.LISTENING) {
+//                    statusBody = loc.localizeToLocale(key("status", "listening"),
+//                        l,
+//                        onlineStatus, game.getName());
+//                    BasicsModule.LOGGER.info(new GsonBuilder().setPrettyPrinting().create().toJson(game.asRichPresence()));
+//                } else {
+//                    statusBody = loc.localizeToLocale(key("status", "playing"),
+//                        l,
+//                        onlineStatus, game.getName());
+//                }
+//            }
+//
+//            builder.addField(loc.localizeToLocale(key("status"), l), statusBody, true);
+//        }
 
         //  SERVER AGE
         {
-            ZonedDateTime joinDate = member.getJoinDate().toZonedDateTime().withZoneSameInstant(ZoneId.systemDefault());
+            ZonedDateTime joinDate = member.getTimeJoined().toZonedDateTime().withZoneSameInstant(ZoneId.systemDefault());
             Duration duration = Duration.between(
                 joinDate,
                 OffsetDateTime.now()).abs();
@@ -136,7 +135,7 @@ public class InfoCmd implements Command {
 
         //  DISCORD AGE
         {
-            ZonedDateTime registerDate = user.getCreationTime()
+            ZonedDateTime registerDate = user.getTimeCreated()
                 .toZonedDateTime()
                 .withZoneSameInstant(ZoneId.systemDefault());
             Duration registerDuration = Duration.between(
@@ -301,7 +300,7 @@ public class InfoCmd implements Command {
         return joiner.toString();
     }
 
-    private long permissionsToLong(List<Permission> permissions) {
+    private long permissionsToLong(Collection<Permission> permissions) {
         long ret = 0L;
         for (Permission permission : permissions) {
             ret |= permission.getRawValue();

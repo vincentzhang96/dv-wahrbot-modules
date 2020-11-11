@@ -7,7 +7,7 @@ import com.divinitor.discord.wahrbot.core.command.CommandResult;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;
 import java.util.Locale;

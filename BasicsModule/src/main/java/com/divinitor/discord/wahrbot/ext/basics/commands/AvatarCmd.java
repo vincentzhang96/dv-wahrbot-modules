@@ -7,11 +7,11 @@ import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.util.discord.MemberResolution;
 import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 
 import java.awt.*;
 import java.util.Locale;

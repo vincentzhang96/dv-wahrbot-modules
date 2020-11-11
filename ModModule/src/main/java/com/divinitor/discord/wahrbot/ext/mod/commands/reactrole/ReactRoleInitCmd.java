@@ -7,12 +7,12 @@ import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
 import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.listeners.ReactionService;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.utils.PermissionUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -106,7 +106,7 @@ public class ReactRoleInitCmd extends AbstractKeyedCommand {
 
         Message targetMessage = null;
         try {
-            targetMessage = targetChannel.getMessageById(targetMessageId).complete();
+            targetMessage = targetChannel.retrieveMessageById(targetMessageId).complete();
         } catch (Exception e) {
         }
         if (targetMessage == null) {

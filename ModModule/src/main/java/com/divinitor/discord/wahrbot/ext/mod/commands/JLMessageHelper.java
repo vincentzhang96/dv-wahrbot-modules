@@ -1,10 +1,10 @@
 package com.divinitor.discord.wahrbot.ext.mod.commands;
 
 import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +25,7 @@ public class JLMessageHelper {
             replace("$i", user.getId()).
             replace("$j", SnowflakeUtils.encode(user.getIdLong())).
             replace("$s", server.getName()).
-            replace("$t", FORMAT.format(member.getJoinDate().toZonedDateTime()
+            replace("$t", FORMAT.format(member.getTimeJoined().toZonedDateTime()
                 .withZoneSameInstant(ZoneId.systemDefault()))).
             replace("$m", "<@" + user.getId() + ">");
     }

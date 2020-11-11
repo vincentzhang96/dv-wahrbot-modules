@@ -6,10 +6,10 @@ import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
 import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.commands.JLMessageHelper;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.IMentionable;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.*;
 import java.util.List;

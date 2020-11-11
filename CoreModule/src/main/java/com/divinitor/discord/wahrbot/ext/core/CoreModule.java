@@ -7,7 +7,7 @@ import com.divinitor.discord.wahrbot.core.module.ModuleContext;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.Getter;
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

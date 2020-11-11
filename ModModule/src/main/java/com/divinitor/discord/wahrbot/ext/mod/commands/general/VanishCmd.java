@@ -3,7 +3,7 @@ package com.divinitor.discord.wahrbot.ext.mod.commands.general;
 import com.divinitor.discord.wahrbot.core.command.*;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 import java.awt.*;
 import java.util.Locale;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 import static com.divinitor.discord.wahrbot.core.command.CommandConstraints.hasAny;
-import static net.dv8tion.jda.core.Permission.MESSAGE_MANAGE;
+import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
 
 public class VanishCmd implements Command {
 

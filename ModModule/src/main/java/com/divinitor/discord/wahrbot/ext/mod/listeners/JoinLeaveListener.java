@@ -7,9 +7,9 @@ import com.divinitor.discord.wahrbot.core.store.ServerStore;
 import com.divinitor.discord.wahrbot.ext.mod.commands.JLMessageHelper;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
 
 import java.util.*;
 import java.util.stream.Collectors;

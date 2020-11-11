@@ -24,7 +24,7 @@ import java.lang.invoke.MethodHandles;
 
 import static com.divinitor.discord.wahrbot.core.command.CommandConstraints.hasAny;
 import static com.divinitor.discord.wahrbot.core.command.CommandConstraints.isOwner;
-import static net.dv8tion.jda.core.Permission.*;
+import static net.dv8tion.jda.api.Permission.*;
 
 public class ModModule implements Module {
 
