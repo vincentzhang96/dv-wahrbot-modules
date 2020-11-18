@@ -2,8 +2,13 @@ package com.divinitor.discord.wahrbot.ext.vahr;
 
 import com.divinitor.discord.wahrbot.core.WahrBot;
 import com.divinitor.discord.wahrbot.core.command.CommandDispatcher;
+import com.divinitor.discord.wahrbot.core.command.CommandRegistry;
+import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
+import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.BasicDuckDnPostUrlCommand;
+import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.BasicMemoryCommand;
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -11,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.List;
 
 public class VahrModule implements Module {
 
@@ -22,6 +28,27 @@ public class VahrModule implements Module {
     private DivinitorDiscordFeatures divinitorDiscordFeatures;
     private DNNACDDiscordFeatures dnnacdDiscordFeatures;
     private KupoFeatures kupoFeatures;
+
+    private List<BasicMemoryCommand> duckCommands = Lists.newArrayList(
+            new BasicDuckDnPostUrlCommand(
+                    "council",
+                    "The council will decide your fate",
+                    "https://static.divinitor.com/site/common/memes/the_council.jpg"
+            ),
+            new BasicDuckDnPostUrlCommand(
+                    "idiots",
+                    "Do you choose to be idiots?",
+                    "https://static.divinitor.com/site/common/memes/idiots.png"
+            ),
+            new BasicDuckDnPostUrlCommand(
+                    "worthless",
+                    "Then your argument is worthless",
+                    "https://static.divinitor.com/site/common/memes/worthless.png"
+            )
+    );
+
+    public static final String MODULE_KEY = "ext.vahr";
+    public static final String BASE_MODULE_PATH = "com.divinitor.discord.wahrbot.ext.vahr.commands";
 
     @Inject
     public VahrModule(WahrBot bot, CommandDispatcher dispatcher) {
@@ -42,6 +69,12 @@ public class VahrModule implements Module {
         eventBus.register(this.divinitorDiscordFeatures);
         eventBus.register(this.dnnacdDiscordFeatures);
         eventBus.register(this.kupoFeatures);
+
+        CommandRegistry registry = this.dispatcher.getRootRegistry();
+        Localizer loc = bot.getLocalizer();
+        for (BasicMemoryCommand duckCommand : this.duckCommands) {
+            duckCommand.register(registry, loc);
+        }
     }
 
     @Override
@@ -61,6 +94,12 @@ public class VahrModule implements Module {
 
         if (this.kupoFeatures != null) {
             eventBus.unregister(this.kupoFeatures);
+        }
+
+        Localizer loc = bot.getLocalizer();
+        CommandRegistry registry = this.dispatcher.getRootRegistry();
+        for (BasicMemoryCommand duckCommand : this.duckCommands) {
+            duckCommand.unregister(registry, loc);
         }
     }
 }
