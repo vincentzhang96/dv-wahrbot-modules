@@ -8,6 +8,8 @@ import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
 import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.BasicDuckDnPostUrlCommand;
 import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.BasicMemoryCommand;
+import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.DuckTestMakeResourceCommand;
+import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.DuckTestRestartCommand;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.inject.Inject;
@@ -28,6 +30,7 @@ public class VahrModule implements Module {
     private DivinitorDiscordFeatures divinitorDiscordFeatures;
     private DNNACDDiscordFeatures dnnacdDiscordFeatures;
     private KupoFeatures kupoFeatures;
+    private DuckDNDiscordFeatures duckDNDiscordFeatures;
 
     private List<BasicMemoryCommand> duckCommands = Lists.newArrayList(
             new BasicDuckDnPostUrlCommand(
@@ -44,7 +47,24 @@ public class VahrModule implements Module {
                     "worthless",
                     "Then your argument is worthless",
                     "https://static.divinitor.com/site/common/memes/worthless.png"
-            )
+            ),
+            new BasicDuckDnPostUrlCommand(
+                    "support",
+                    "Introducing basic minimums",
+                    "https://static.divinitor.com/site/common/memes/support.png"
+            ),
+            new BasicDuckDnPostUrlCommand(
+                    "certified",
+                    "Certified retard",
+                    "https://static.divinitor.com/site/common/memes/certified.png"
+            ),
+            new BasicDuckDnPostUrlCommand(
+                    "guide",
+                    "If you missed the guide the first 20 times",
+                    "https://news.fatduckdn.com/guide/"
+            ),
+            new DuckTestMakeResourceCommand(),
+            new DuckTestRestartCommand()
     );
 
     public static final String MODULE_KEY = "ext.vahr";
@@ -63,12 +83,14 @@ public class VahrModule implements Module {
         this.divinitorDiscordFeatures = injector.getInstance(DivinitorDiscordFeatures.class);
         this.dnnacdDiscordFeatures = injector.getInstance(DNNACDDiscordFeatures.class);
         this.kupoFeatures = injector.getInstance(KupoFeatures.class);
+        this.duckDNDiscordFeatures = injector.getInstance(DuckDNDiscordFeatures.class);
 
         AsyncEventBus eventBus = this.bot.getEventBus();
         eventBus.register(this.commonFeatures);
         eventBus.register(this.divinitorDiscordFeatures);
         eventBus.register(this.dnnacdDiscordFeatures);
         eventBus.register(this.kupoFeatures);
+        eventBus.register(this.duckDNDiscordFeatures);
 
         CommandRegistry registry = this.dispatcher.getRootRegistry();
         Localizer loc = bot.getLocalizer();
@@ -94,6 +116,10 @@ public class VahrModule implements Module {
 
         if (this.kupoFeatures != null) {
             eventBus.unregister(this.kupoFeatures);
+        }
+
+        if (this.duckDNDiscordFeatures != null) {
+            eventBus.unregister(this.duckDNDiscordFeatures);
         }
 
         Localizer loc = bot.getLocalizer();

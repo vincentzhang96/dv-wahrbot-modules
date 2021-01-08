@@ -30,6 +30,9 @@ public class BasicDuckDnPostUrlCommand extends BasicMemoryCommand {
 
     @Override
     public CommandConstraint<CommandContext> getOtherConstraints() {
-        return (context) -> context.getServer().getIdLong() == 544827049752264704L;
+        return (context) -> {
+            long id = context.getServer().getIdLong();
+            return id == 544827049752264704L || id == 394026352312844298L;
+        };
     }
 }

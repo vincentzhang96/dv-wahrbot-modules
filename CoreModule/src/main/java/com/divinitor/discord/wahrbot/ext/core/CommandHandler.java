@@ -62,13 +62,10 @@ public class CommandHandler {
 
         //  Only the management account can perform these actions
         User author = event.getAuthor();
-        if (author == null) {
-            return;
-        }
 
         if (!this.checkId(author.getId())) {
             CoreModule.LOGGER.warn("User " + author.toString() + " does not have valid credentials for managing " +
-                "the bot; access denied");
+                    "the bot; access denied");
             return;
         }
 
@@ -79,13 +76,16 @@ public class CommandHandler {
             switch (cmd) {
                 case "help": {
                     event.getMessage().getChannel().sendMessage("Available commands: " +
-                        "help, shutdown, restart,\n" +
-                        "load <moduleid> [version],\n" +
-                        "add [url]|<attachment>,\n" +
-                        "unload <moduleid>,\n" +
-                        "reload <moduleid> [version]\n" +
-                        "admin <userid>\n")
-                        .queue();
+                            "help, shutdown, restart,\n" +
+                            "load <moduleid> [version],\n" +
+                            "add [url]|<attachment>,\n" +
+                            "unload <moduleid>,\n" +
+                            "reload <moduleid> [version]\n" +
+                            "sudo <userid>\n" +
+                            "udataget <userid> [key]\n" +
+                            "udataset <userid> <key> <value>\n"
+                    )
+                            .queue();
                     break;
                 }
                 case "shutdown": {
@@ -116,11 +116,19 @@ public class CommandHandler {
                     this.setSuperAdmin(line, event);
                     break;
                 }
+                case "udataget": {
+                    this.getUserData(line, event);
+                    break;
+                }
+                case "udataset": {
+                    this.setUserData(line, event);
+                    break;
+                }
             }
         } catch (Exception e) {
             CoreModule.LOGGER.warn("Unable to execute command \"{}\"", content, e);
             event.getMessage().getChannel().sendMessage("Command execution error: " + e.toString())
-                .queue();
+                    .queue();
         }
     }
 
@@ -140,7 +148,7 @@ public class CommandHandler {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing user ID")
-                .queue();
+                    .queue();
             return;
         }
 
@@ -152,7 +160,7 @@ public class CommandHandler {
         User user = event.getJDA().getUserById(id);
         if (user == null) {
             ch.sendMessage("Cannot find user with that ID")
-                .queue();
+                    .queue();
             return;
         }
 
@@ -162,12 +170,12 @@ public class CommandHandler {
 
         if (sudo) {
             ch.sendMessage(String.format("User %s#%s (%s) is no longer a super admin",
-                user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user.getIdLong())))
-                .queue();
+                    user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user.getIdLong())))
+                    .queue();
         } else {
             ch.sendMessage(String.format("User %s#%s (%s) is now a super admin",
-                user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user.getIdLong())))
-                .queue();
+                    user.getName(), user.getDiscriminator(), SnowflakeUtils.encode(user.getIdLong())))
+                    .queue();
         }
     }
 
@@ -184,15 +192,15 @@ public class CommandHandler {
                 urlStr = line.remainder();
             } else {
                 ch.sendMessage("Missing module URL or attachment")
-                    .queue();
+                        .queue();
                 return;
             }
         }
         try {
             Path temp = Files.createTempFile("wahrbot", ".jar");
             InputStream body = Unirest.get(urlStr)
-                .asBinary()
-                .getBody();
+                    .asBinary()
+                    .getBody();
             byte[] buffer = new byte[8192];
             int read = 0;
             try (OutputStream os = Files.newOutputStream(temp)) {
@@ -211,8 +219,8 @@ public class CommandHandler {
 
                 InputStream inputStream = jarFile.getInputStream(entry);
                 info = StandardGson.instance().fromJson(
-                    new InputStreamReader(inputStream),
-                    ModuleInformation.class);
+                        new InputStreamReader(inputStream),
+                        ModuleInformation.class);
             } catch (IOException e) {
                 throw new ModuleLoadException("Failed to read module from " + urlStr, e);
             }
@@ -231,7 +239,7 @@ public class CommandHandler {
         } catch (Exception e) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to load module: " + e.toString() + " <" + uuid.toString() + ">")
-                .queue();
+                    .queue();
             CoreModule.LOGGER.warn("Module {} load failed <{}>", urlStr, uuid, e);
         }
     }
@@ -240,7 +248,7 @@ public class CommandHandler {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
-                .queue();
+                    .queue();
             return;
         }
 
@@ -253,21 +261,21 @@ public class CommandHandler {
         try {
             this.core.getBot().getModuleManager().loadModule(id, version);
             ch.sendMessage(String.format("Module `%s` loaded", id))
-                .queue();
+                    .queue();
 
             this.core.getBot().getModuleManager().saveCurrentModuleList();
         } catch (IllegalStateException ise) {
             ch.sendMessage("Module is already loaded")
-                .queue();
+                    .queue();
         } catch (ModuleLoadException mle) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to load module: " + mle.toString() + " <" + uuid.toString() + ">")
-                .queue();
+                    .queue();
             CoreModule.LOGGER.warn("Module {}:{} load failed <{}>", id, version, uuid, mle);
         } catch (IOException e) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to save module list, changes might not persist <" + uuid.toString() + ">")
-                .queue();
+                    .queue();
             CoreModule.LOGGER.warn("Failed to save module list <{}>", uuid, e);
         }
     }
@@ -276,7 +284,7 @@ public class CommandHandler {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
-                .queue();
+                    .queue();
             return;
         }
 
@@ -284,7 +292,7 @@ public class CommandHandler {
 
         if (id.equals("core")) {
             ch.sendMessage("Cannot unload core module!")
-                .queue();
+                    .queue();
             return;
         }
 
@@ -295,17 +303,17 @@ public class CommandHandler {
         try {
             this.core.getBot().getModuleManager().unloadModule(id);
             ch.sendMessage(String.format("Module `%s` unloaded", id))
-                .queue();
+                    .queue();
             this.core.getBot().getModuleManager().saveCurrentModuleList();
         } catch (NoSuchElementException nsee) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to unload module: " + nsee.toString() + " <" + uuid.toString() + ">")
-                .queue();
+                    .queue();
             CoreModule.LOGGER.warn("Module {} unload failed <{}>", id, uuid, nsee);
         } catch (IOException e) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to save module list, changes might not persist <" + uuid.toString() + ">")
-                .queue();
+                    .queue();
             CoreModule.LOGGER.warn("Failed to save module list <{}>", uuid, e);
         }
     }
@@ -314,7 +322,7 @@ public class CommandHandler {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
-                .queue();
+                    .queue();
         }
 
         String id = line.next();
@@ -326,18 +334,99 @@ public class CommandHandler {
         try {
             this.core.getBot().getModuleManager().reloadModule(id, version);
             ch.sendMessage(String.format("Module `%s` reloaded", id))
-                .queue();
+                    .queue();
             this.core.getBot().getModuleManager().saveCurrentModuleList();
         } catch (ModuleLoadException mle) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to reload module: " + mle.toString() + " <" + uuid.toString() + ">")
-                .queue();
+                    .queue();
             CoreModule.LOGGER.warn("Module {}:{} reload failed <{}>", id, version, uuid, mle);
         } catch (IOException e) {
             UUID uuid = UUID.randomUUID();
             ch.sendMessage("Failed to save module list, changes might not persist <" + uuid.toString() + ">")
-                .queue();
+                    .queue();
             CoreModule.LOGGER.warn("Failed to save module list <{}>", uuid, e);
         }
+    }
+
+    private void getUserData(CommandLine line, PrivateMessageReceivedEvent event) {
+        MessageChannel ch = event.getChannel();
+        if (!line.hasNext()) {
+            ch.sendMessage("Missing user ID")
+                    .queue();
+            return;
+        }
+
+        String id = line.next();
+        if (id.startsWith(SnowflakeUtils.PREFIX)) {
+            id = SnowflakeUtils.decodeToString(id);
+        }
+
+        User user = event.getJDA().getUserById(id);
+        if (user == null) {
+            user = event.getJDA().retrieveUserById(id).complete();
+        }
+
+        if (user == null) {
+            ch.sendMessage("Cannot find user with that ID")
+                    .queue();
+            return;
+        }
+
+        UserStore userStore = this.core.getBot().getUserStorage().forUser(user);
+
+        if (line.hasNext()) {
+            String key = line.next();
+            String res = userStore.getString(key);
+            ch.sendMessage(String.format("GET `%s`=`%s`", key, res)).queue();
+        } else {
+            ch.sendMessage("Not implemented")
+                    .queue();
+        }
+    }
+
+    private void setUserData(CommandLine line, PrivateMessageReceivedEvent event) {
+        MessageChannel ch = event.getChannel();
+        if (!line.hasNext()) {
+            ch.sendMessage("Missing user ID")
+                    .queue();
+            return;
+        }
+
+        String id = line.next();
+        if (id.startsWith(SnowflakeUtils.PREFIX)) {
+            id = SnowflakeUtils.decodeToString(id);
+        }
+
+        User user = event.getJDA().getUserById(id);
+        if (user == null) {
+            user = event.getJDA().retrieveUserById(id).complete();
+        }
+
+        if (user == null) {
+            ch.sendMessage("Cannot find user with that ID")
+                    .queue();
+            return;
+        }
+
+        UserStore userStore = this.core.getBot().getUserStorage().forUser(user);
+
+        if (!line.hasNext()) {
+            ch.sendMessage("Missing key")
+                    .queue();
+            return;
+        }
+        String key = line.next();
+
+        if (!line.hasNext()) {
+            ch.sendMessage("Missing value")
+                    .queue();
+            return;
+        }
+
+        String value = line.next();
+
+        userStore.put(key, value);
+        ch.sendMessage(String.format("SET `%s`=`%s`", key, value)).queue();
     }
 }
