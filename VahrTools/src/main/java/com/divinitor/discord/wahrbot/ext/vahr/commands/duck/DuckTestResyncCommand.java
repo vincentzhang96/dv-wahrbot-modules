@@ -14,28 +14,26 @@ import org.json.JSONObject;
 
 import java.util.NoSuchElementException;
 
-public class DuckTestRestartCommand extends BasicMemoryCommand {
+public class DuckTestResyncCommand extends BasicMemoryCommand {
 
-    public DuckTestRestartCommand() {
+    public DuckTestResyncCommand() {
         super(
-                "rtst",
-                "Restart test server",
-                "Restarts the test server"
+                "resync",
+                "Resync test server",
+                "Resync the test server"
         );
     }
 
     @Override
     public String getKey() {
-        return VahrModule.MODULE_KEY + ".commands.rtst";
+        return VahrModule.MODULE_KEY + ".commands.resync";
     }
 
     @Override
     public CommandResult invoke(CommandContext context) {
-        boolean gameOnly ="g".equalsIgnoreCase(context.getCommandLine().peek());
-
         Message message = context.getMessage();
         message.addReaction("U+1F4AC").queue();
-        Unirest.post("http://westus.test.infra.fatduckdn.com:8001/restart" + (gameOnly ? "g" : ""))
+        Unirest.post("http://westus.test.infra.fatduckdn.com:8001/resync")
                 .queryString("key", "p6ukcUBSf3GJ8o6kI4wOCygBLCK3nDqU")
                 .asStringAsync(new Callback<String>() {
                     @Override
@@ -44,9 +42,9 @@ public class DuckTestRestartCommand extends BasicMemoryCommand {
                         if (response.getStatus() != 200) {
                             EmbedBuilder b1 = new EmbedBuilder()
                                     .setColor(0xFF0000)
-                                    .setTitle("Duck DN Test Restart")
+                                    .setTitle("Duck DN Test Resync")
                                     .addField("Error", bodyS, false)
-                                    .appendDescription("Restart FAILED");
+                                    .appendDescription("Resync FAILED");
                             message.editMessage(b1.build()).queue();
                         } else {
                             message.addReaction("U+1F197").queue();
@@ -58,9 +56,9 @@ public class DuckTestRestartCommand extends BasicMemoryCommand {
                     public void failed(UnirestException e) {
                         EmbedBuilder b1 = new EmbedBuilder()
                                 .setColor(0xFF0000)
-                                .setTitle("Duck DN Test Restart")
+                                .setTitle("Duck DN Test Resync")
                                 .addField("Error", e.toString(), false)
-                                .appendDescription("Restart FAILED");
+                                .appendDescription("Resync FAILED");
                         message.editMessage(b1.build()).queue();
                     }
 
@@ -68,9 +66,9 @@ public class DuckTestRestartCommand extends BasicMemoryCommand {
                     public void cancelled() {
                         EmbedBuilder b1 = new EmbedBuilder()
                                 .setColor(0xFF0000)
-                                .setTitle("Duck DN Test Restart")
+                                .setTitle("Duck DN Test Resync")
                                 .addField("Error", "Request cancelled", false)
-                                .appendDescription("Restart FAILED");
+                                .appendDescription("Resync FAILED");
                         message.editMessage(b1.build()).queue();
                     }
                 });

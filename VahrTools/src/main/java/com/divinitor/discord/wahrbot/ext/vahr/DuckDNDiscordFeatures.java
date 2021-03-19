@@ -26,7 +26,7 @@ public class DuckDNDiscordFeatures {
     @Subscribe
     public void onReactionAdded(GuildMessageReactionAddEvent event) {
         TextChannel channel = event.getChannel();
-        if (channel.getIdLong() != 684227396110385152L) {
+        if (channel.getIdLong() != 684227396110385152L && channel.getIdLong() != 808457392169549835L) {
             return;
         }
 

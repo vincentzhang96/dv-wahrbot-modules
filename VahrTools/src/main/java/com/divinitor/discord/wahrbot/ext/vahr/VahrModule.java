@@ -6,10 +6,7 @@ import com.divinitor.discord.wahrbot.core.command.CommandRegistry;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
-import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.BasicDuckDnPostUrlCommand;
-import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.BasicMemoryCommand;
-import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.DuckTestMakeResourceCommand;
-import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.DuckTestRestartCommand;
+import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.*;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.inject.Inject;
@@ -64,7 +61,8 @@ public class VahrModule implements Module {
                     "https://news.fatduckdn.com/guide/"
             ),
             new DuckTestMakeResourceCommand(),
-            new DuckTestRestartCommand()
+            new DuckTestRestartCommand(),
+            new DuckTestResyncCommand()
     );
 
     public static final String MODULE_KEY = "ext.vahr";
