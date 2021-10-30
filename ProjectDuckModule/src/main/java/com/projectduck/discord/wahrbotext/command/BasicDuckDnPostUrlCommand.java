@@ -1,9 +1,9 @@
-package com.divinitor.discord.wahrbot.ext.vahr.commands.duck;
+package com.projectduck.discord.wahrbotext.command;
 
 import com.divinitor.discord.wahrbot.core.command.CommandConstraint;
 import com.divinitor.discord.wahrbot.core.command.CommandContext;
 import com.divinitor.discord.wahrbot.core.command.CommandResult;
-import com.divinitor.discord.wahrbot.ext.vahr.VahrModule;
+import com.projectduck.discord.wahrbotext.ProjectDuckModule;
 
 public class BasicDuckDnPostUrlCommand extends BasicMemoryCommand {
 
@@ -12,7 +12,7 @@ public class BasicDuckDnPostUrlCommand extends BasicMemoryCommand {
 
     public BasicDuckDnPostUrlCommand(String command, String help, String url) {
         super(command, help);
-        this.key = VahrModule.MODULE_KEY + ".commands." + command;
+        this.key = ProjectDuckModule.MODULE_KEY + ".command." + command;
         this.url = url;
     }
 

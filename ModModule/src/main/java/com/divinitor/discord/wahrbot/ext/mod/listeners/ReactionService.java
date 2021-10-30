@@ -12,6 +12,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.eventbus.Subscribe;
 import gnu.trove.set.hash.TLongHashSet;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
@@ -144,7 +145,7 @@ public class ReactionService {
     }
 
     @Subscribe
-    public void onReactionDeleted(MessageReactionRemoveEvent event) {
+    public void onReactionDeleted(GuildMessageReactionRemoveEvent event) {
         Guild guild = event.getGuild();
         CacheEntry entry = this.cache.getUnchecked(guild);
         if (entry.skip) {
@@ -177,7 +178,12 @@ public class ReactionService {
 
         long roleId = SnowflakeUtils.decode(roleSidStr);
         Role role = guild.getRoleById(roleId);
-        Member member = event.getMember();
+        Member member = event.retrieveMember().timeout(10, TimeUnit.SECONDS).complete();
+        if (member == null) {
+            LOGGER.warn("Unable to get reaction member for reaction remove");
+            return;
+        }
+
         User user = member.getUser();
         if (role == null) {
             //  Role is set up but does not exist anymore

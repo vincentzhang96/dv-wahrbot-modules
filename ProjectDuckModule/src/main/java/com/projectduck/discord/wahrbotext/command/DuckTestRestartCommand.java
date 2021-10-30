@@ -1,16 +1,15 @@
-package com.divinitor.discord.wahrbot.ext.vahr.commands.duck;
+package com.projectduck.discord.wahrbotext.command;
 
 import com.divinitor.discord.wahrbot.core.command.CommandConstraint;
 import com.divinitor.discord.wahrbot.core.command.CommandContext;
 import com.divinitor.discord.wahrbot.core.command.CommandResult;
-import com.divinitor.discord.wahrbot.ext.vahr.VahrModule;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.projectduck.discord.wahrbotext.ProjectDuckModule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import org.json.JSONObject;
 
 import java.util.NoSuchElementException;
 
@@ -26,7 +25,7 @@ public class DuckTestRestartCommand extends BasicMemoryCommand {
 
     @Override
     public String getKey() {
-        return VahrModule.MODULE_KEY + ".commands.rtst";
+        return ProjectDuckModule.MODULE_KEY + ".command.rtst";
     }
 
     @Override

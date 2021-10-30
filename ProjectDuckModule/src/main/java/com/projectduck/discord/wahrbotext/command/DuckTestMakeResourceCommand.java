@@ -1,22 +1,19 @@
-package com.divinitor.discord.wahrbot.ext.vahr.commands.duck;
+package com.projectduck.discord.wahrbotext.command;
 
 import com.divinitor.discord.wahrbot.core.command.CommandConstraint;
 import com.divinitor.discord.wahrbot.core.command.CommandContext;
 import com.divinitor.discord.wahrbot.core.command.CommandLine;
 import com.divinitor.discord.wahrbot.core.command.CommandResult;
-import com.divinitor.discord.wahrbot.ext.vahr.VahrModule;
-import com.google.common.util.concurrent.Futures;
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.projectduck.discord.wahrbotext.ProjectDuckModule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import org.json.JSONObject;
 
 import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
 
 public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
 
@@ -32,7 +29,7 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
 
     @Override
     public String getKey() {
-        return VahrModule.MODULE_KEY + ".commands.makeres";
+        return ProjectDuckModule.MODULE_KEY + ".command.makeres";
     }
 
     @Override

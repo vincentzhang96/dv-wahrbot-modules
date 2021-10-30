@@ -6,11 +6,11 @@ import com.divinitor.discord.wahrbot.core.command.CommandRegistry;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
-import com.divinitor.discord.wahrbot.ext.vahr.commands.duck.*;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.mashape.unirest.http.Unirest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,44 +26,6 @@ public class VahrModule implements Module {
     private CommonFeatures commonFeatures;
     private DivinitorDiscordFeatures divinitorDiscordFeatures;
     private DNNACDDiscordFeatures dnnacdDiscordFeatures;
-    private KupoFeatures kupoFeatures;
-    private DuckDNDiscordFeatures duckDNDiscordFeatures;
-
-    private List<BasicMemoryCommand> duckCommands = Lists.newArrayList(
-            new BasicDuckDnPostUrlCommand(
-                    "council",
-                    "The council will decide your fate",
-                    "https://static.divinitor.com/site/common/memes/the_council.jpg"
-            ),
-            new BasicDuckDnPostUrlCommand(
-                    "idiots",
-                    "Do you choose to be idiots?",
-                    "https://static.divinitor.com/site/common/memes/idiots.png"
-            ),
-            new BasicDuckDnPostUrlCommand(
-                    "worthless",
-                    "Then your argument is worthless",
-                    "https://static.divinitor.com/site/common/memes/worthless.png"
-            ),
-            new BasicDuckDnPostUrlCommand(
-                    "support",
-                    "Introducing basic minimums",
-                    "https://static.divinitor.com/site/common/memes/support.png"
-            ),
-            new BasicDuckDnPostUrlCommand(
-                    "certified",
-                    "Certified retard",
-                    "https://static.divinitor.com/site/common/memes/certified.png"
-            ),
-            new BasicDuckDnPostUrlCommand(
-                    "guide",
-                    "If you missed the guide the first 20 times",
-                    "https://news.fatduckdn.com/guide/"
-            ),
-            new DuckTestMakeResourceCommand(),
-            new DuckTestRestartCommand(),
-            new DuckTestResyncCommand()
-    );
 
     public static final String MODULE_KEY = "ext.vahr";
     public static final String BASE_MODULE_PATH = "com.divinitor.discord.wahrbot.ext.vahr.commands";
@@ -80,21 +42,13 @@ public class VahrModule implements Module {
         this.commonFeatures = injector.getInstance(CommonFeatures.class);
         this.divinitorDiscordFeatures = injector.getInstance(DivinitorDiscordFeatures.class);
         this.dnnacdDiscordFeatures = injector.getInstance(DNNACDDiscordFeatures.class);
-        this.kupoFeatures = injector.getInstance(KupoFeatures.class);
-        this.duckDNDiscordFeatures = injector.getInstance(DuckDNDiscordFeatures.class);
 
         AsyncEventBus eventBus = this.bot.getEventBus();
         eventBus.register(this.commonFeatures);
         eventBus.register(this.divinitorDiscordFeatures);
         eventBus.register(this.dnnacdDiscordFeatures);
-        eventBus.register(this.kupoFeatures);
-        eventBus.register(this.duckDNDiscordFeatures);
 
-        CommandRegistry registry = this.dispatcher.getRootRegistry();
-        Localizer loc = bot.getLocalizer();
-        for (BasicMemoryCommand duckCommand : this.duckCommands) {
-            duckCommand.register(registry, loc);
-        }
+        Unirest.setTimeouts(10000, 240000);
     }
 
     @Override
@@ -110,20 +64,6 @@ public class VahrModule implements Module {
 
         if (this.dnnacdDiscordFeatures != null) {
             eventBus.unregister(this.dnnacdDiscordFeatures);
-        }
-
-        if (this.kupoFeatures != null) {
-            eventBus.unregister(this.kupoFeatures);
-        }
-
-        if (this.duckDNDiscordFeatures != null) {
-            eventBus.unregister(this.duckDNDiscordFeatures);
-        }
-
-        Localizer loc = bot.getLocalizer();
-        CommandRegistry registry = this.dispatcher.getRootRegistry();
-        for (BasicMemoryCommand duckCommand : this.duckCommands) {
-            duckCommand.unregister(registry, loc);
         }
     }
 }

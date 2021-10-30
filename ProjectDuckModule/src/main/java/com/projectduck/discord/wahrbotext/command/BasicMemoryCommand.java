@@ -1,14 +1,12 @@
-package com.divinitor.discord.wahrbot.ext.vahr.commands.duck;
+package com.projectduck.discord.wahrbotext.command;
 
 
 import com.divinitor.discord.wahrbot.core.command.Command;
 import com.divinitor.discord.wahrbot.core.command.CommandRegistry;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.i18n.LocalizerBundle;
-import com.divinitor.discord.wahrbot.core.i18n.ResourceBundleBundle;
 
 import java.util.Locale;
-import java.util.StringJoiner;
 
 /**
  * An abstract Command implementation that takes care of basics such as registration and resource registration, using
