@@ -24,6 +24,8 @@ import net.dv8tion.jda.internal.utils.tuple.Pair;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -248,5 +250,46 @@ public class DuckDNDiscordFeatures {
                         message.editMessage(b1.build()).queue();
                     }
                 });
+    }
+
+    private Instant lastTierListTime = null;
+
+    @SneakyThrows
+    @Subscribe
+    public void autoreplyTierList(GuildMessageReceivedEvent event) {
+        Instant now = Instant.now();
+        if (lastTierListTime != null) {
+            long deltaSec = Duration.between(lastTierListTime, now).abs().getSeconds();
+            if (deltaSec < 60 * 5) {
+                return;
+            }
+        }
+
+        Guild guild = event.getGuild();
+        if (guild.getIdLong() != 544827049752264704L) {
+            return;
+        }
+
+        Message message = event.getMessage();
+        if (message.isWebhookMessage()) {
+            return;
+        }
+
+        User author = event.getAuthor();
+        if (author.isBot()) {
+            return;
+        }
+
+        String raw = message.getContentRaw().toLowerCase();
+        if (raw.contains("tier list") || raw.contains("tierlist")) {
+            lastTierListTime = now;
+            Message msg = new MessageBuilder()
+                    .append(author)
+                    .append(" DPS classes on Project Duck are all very close to each other in damage. What matters is your gear and skill with the class.\nPlay what you like!")
+                    .mention(author)
+                    .build();
+
+            message.getChannel().sendMessage(msg).queue();
+        }
     }
 }
