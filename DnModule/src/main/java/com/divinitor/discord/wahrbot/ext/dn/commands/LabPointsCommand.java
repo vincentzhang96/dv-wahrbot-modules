@@ -9,6 +9,7 @@ import com.divinitor.discord.wahrbot.ext.dn.DnModule;
 import com.divinitor.discord.wahrbot.ext.dn.util.QueueExceptionHandler;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -104,7 +105,7 @@ public class LabPointsCommand extends AbstractKeyedCommand {
 
         builder.setColor(0xefb237);
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, this.handleQueueException("result"));
 
         return CommandResult.ok();
@@ -135,7 +136,7 @@ public class LabPointsCommand extends AbstractKeyedCommand {
         builder.setFooter(loc.localizeToLocale(this.key("resp.floor.footer"), locale, floor, nlcp), null);
         builder.setColor(0xefb237);
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, this.handleQueueException("result"));
 
         return CommandResult.ok();
@@ -162,7 +163,7 @@ public class LabPointsCommand extends AbstractKeyedCommand {
                 loc.localizeToLocale(this.key("remark.body"), l, nlcp), false);
         }
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, this.handleQueueException(exceptionKey));
         return CommandResult.rejected();
     }

@@ -12,7 +12,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.eventbus.Subscribe;
 import gnu.trove.set.hash.TLongHashSet;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
@@ -145,8 +144,12 @@ public class ReactionService {
     }
 
     @Subscribe
-    public void onReactionDeleted(GuildMessageReactionRemoveEvent event) {
+    public void onReactionDeleted(MessageReactionRemoveEvent event) {
         Guild guild = event.getGuild();
+        if (guild == null) {
+            return;
+        }
+
         CacheEntry entry = this.cache.getUnchecked(guild);
         if (entry.skip) {
             //  Guild has no reactroles

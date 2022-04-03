@@ -8,6 +8,7 @@ import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.listeners.ReactionService;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
@@ -47,7 +48,7 @@ public class ReactRoleInitCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.no_args"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue(null, handleQueueException());
             return CommandResult.rejected();
         }
@@ -95,12 +96,12 @@ public class ReactRoleInitCmd extends AbstractKeyedCommand {
                 builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
                 builder.setDescription(this.loc.localizeToLocale(this.key("error.channel_not_found"), l, target, nlcp));
                 builder.setColor(Color.RED);
-                context.getFeedbackChannel().sendMessage(builder.build())
+                context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                     .queue(null, handleQueueException());
                 return CommandResult.rejected();
             }
         } else {
-            targetChannel = context.getInvocationChannel();
+            targetChannel = (TextChannel) context.getInvocationChannel();
         }
 
 
@@ -115,7 +116,7 @@ public class ReactRoleInitCmd extends AbstractKeyedCommand {
             builder.setDescription(this.loc.localizeToLocale(this.key("error.message_not_found"),
                 l, SnowflakeUtils.encode(targetMessageId), nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue(null, handleQueueException());
             return CommandResult.rejected();
         }
@@ -125,7 +126,7 @@ public class ReactRoleInitCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.noperm.bot.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.noperm.bot.body"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue(null, handleQueueException());
             return CommandResult.handled();
         }
@@ -140,7 +141,7 @@ public class ReactRoleInitCmd extends AbstractKeyedCommand {
         builder.setDescription(this.loc.localizeToLocale(this.key("success.body"), l,
             SnowflakeUtils.encode(targetMessageId), nlcp));
         builder.setColor(Color.GREEN);
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, handleQueueException());
 
         return CommandResult.ok();
@@ -163,7 +164,7 @@ public class ReactRoleInitCmd extends AbstractKeyedCommand {
     @Override
     public CommandConstraint<CommandContext> getBotPermissionConstraints() {
         return CommandConstraints.hasAll(
-            Permission.MESSAGE_READ,
+            Permission.VIEW_CHANNEL,
             Permission.MANAGE_ROLES,
             Permission.MESSAGE_ADD_REACTION
         );

@@ -7,6 +7,7 @@ import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.commands.JLMessageHelper;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -66,7 +67,7 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
                 builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
                 builder.setDescription(this.loc.localizeToLocale(this.key("error.unkarg"), l, nlcp));
                 builder.setColor(Color.RED);
-                context.getFeedbackChannel().sendMessage(builder.build())
+                context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                     .queue();
                 return CommandResult.rejected();
         }
@@ -82,7 +83,7 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.unkch"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -98,7 +99,7 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
         builder.setDescription(loc.localizeToLocale(this.key("resp.desc.remove"), l, channel.getAsMention(), nlcp));
         builder.setColor(Color.GREEN);
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue();
 
         return CommandResult.ok();
@@ -114,7 +115,7 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.unkch"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -131,7 +132,7 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
         builder.setDescription(loc.localizeToLocale(this.key("resp.desc.add"), l, channel.getAsMention(), nlcp));
         builder.setColor(Color.GREEN);
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue();
 
         return CommandResult.ok();
@@ -162,7 +163,7 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.unkch"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -178,7 +179,7 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
         builder.setDescription(loc.localizeToLocale(this.key("resp.desc.set"), l, channel.getAsMention(), nlcp));
         builder.setColor(Color.GREEN);
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue();
 
         return CommandResult.ok();
@@ -236,7 +237,7 @@ public class SetWelcomeChannelCmd extends AbstractKeyedCommand {
                 channel = mentions.get(0);
             }
         } else {
-            channel = context.getFeedbackChannel();
+            channel = (TextChannel) context.getFeedbackChannel();
         }
         return channel;
     }

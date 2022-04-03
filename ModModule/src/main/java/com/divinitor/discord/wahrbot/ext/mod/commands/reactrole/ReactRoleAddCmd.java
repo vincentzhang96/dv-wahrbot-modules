@@ -9,6 +9,7 @@ import com.divinitor.discord.wahrbot.ext.mod.listeners.ReactionService;
 import com.divinitor.discord.wahrbot.ext.mod.util.ReactionUtils;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import org.jetbrains.annotations.NotNull;
@@ -209,7 +210,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
         }
         builder.setDescription(this.loc.localizeToLocale(this.key("success.body"), l, emojiStr, role.getName(), nlcp));
         builder.setColor(Color.GREEN);
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, handleQueueException());
 
         return CommandResult.ok();
@@ -230,7 +231,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
         builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
         builder.setDescription(this.loc.localizeToLocale(this.key("error.no_args"), l, nlcp));
         builder.setColor(Color.RED);
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
@@ -244,7 +245,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
         builder.setDescription(this.loc.localizeToLocale(this.key("error.message_not_found"), l,
             target, nlcp));
         builder.setColor(Color.RED);
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
@@ -258,7 +259,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
         builder.setDescription(this.loc.localizeToLocale(this.key("error.channel_not_found"), l,
             target, nlcp));
         builder.setColor(Color.RED);
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
@@ -272,7 +273,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
         builder.setDescription(this.loc.localizeToLocale(this.key("error.role_not_found"), l,
             target, nlcp));
         builder.setColor(Color.RED);
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
@@ -286,7 +287,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
         builder.setDescription(this.loc.localizeToLocale(this.key("error.message_not_init"), l,
             SnowflakeUtils.encode(mid), nlcp));
         builder.setColor(Color.RED);
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
@@ -300,7 +301,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
         builder.setDescription(this.loc.localizeToLocale(this.key("error.message_not_init"), l,
             msg, nlcp));
         builder.setColor(Color.RED);
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, handleQueueException());
         return CommandResult.rejected();
     }
@@ -314,7 +315,7 @@ public class ReactRoleAddCmd extends AbstractKeyedCommand {
     @Override
     public CommandConstraint<CommandContext> getBotPermissionConstraints() {
         return CommandConstraints.hasAll(
-            Permission.MESSAGE_READ,
+            Permission.VIEW_CHANNEL,
             Permission.MANAGE_ROLES,
             Permission.MESSAGE_ADD_REACTION
         );

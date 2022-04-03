@@ -9,7 +9,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -77,7 +77,7 @@ public class JoinLeaveListener {
     }
 
     @Subscribe
-    public void onMemberLeave(GuildMemberLeaveEvent event) {
+    public void onMemberLeave(GuildMemberRemoveEvent event) {
         ServerStore store = this.serverStorage.forServer(event.getGuild());
 
         Map<String, String> jlConfig = store.getObject("mod.jl", Map.class);

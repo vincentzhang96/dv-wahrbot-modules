@@ -9,9 +9,11 @@ import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.projectduck.discord.wahrbotext.ProjectDuckModule;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 
 public class DuckTestResyncCommand extends BasicMemoryCommand {
 
@@ -31,6 +33,11 @@ public class DuckTestResyncCommand extends BasicMemoryCommand {
     @Override
     public CommandResult invoke(CommandContext context) {
         Message message = context.getMessage();
+        resyncTest(message, (err) -> {});
+        return CommandResult.ok();
+    }
+
+    public static void resyncTest(Message message, Consumer<String> handler) {
         message.addReaction("U+1F4AC").queue();
         Unirest.post("http://westus.test.infra.fatduckdn.com:8001/resync")
                 .queryString("key", "p6ukcUBSf3GJ8o6kI4wOCygBLCK3nDqU")
@@ -44,10 +51,12 @@ public class DuckTestResyncCommand extends BasicMemoryCommand {
                                     .setTitle("Duck DN Test Resync")
                                     .addField("Error", bodyS, false)
                                     .appendDescription("Resync FAILED");
-                            message.editMessage(b1.build()).queue();
+                            message.editMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
+                            handler.accept("Resync FAILED");
                         } else {
                             message.addReaction("U+1F197").queue();
                             message.removeReaction("U+1F4AC").queue();
+                            handler.accept("");
                         }
                     }
 
@@ -58,7 +67,8 @@ public class DuckTestResyncCommand extends BasicMemoryCommand {
                                 .setTitle("Duck DN Test Resync")
                                 .addField("Error", e.toString(), false)
                                 .appendDescription("Resync FAILED");
-                        message.editMessage(b1.build()).queue();
+                        message.editMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
+                        handler.accept("Resync FAILED");
                     }
 
                     @Override
@@ -68,11 +78,10 @@ public class DuckTestResyncCommand extends BasicMemoryCommand {
                                 .setTitle("Duck DN Test Resync")
                                 .addField("Error", "Request cancelled", false)
                                 .appendDescription("Resync FAILED");
-                        message.editMessage(b1.build()).queue();
+                        message.editMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
+                        handler.accept("Resync FAILED");
                     }
                 });
-
-        return CommandResult.ok();
     }
 
     @Override

@@ -12,10 +12,7 @@ import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 
 import java.awt.*;
 import java.time.Duration;
@@ -169,7 +166,7 @@ public class InfoCmd implements Command {
             builder.addField(loc.localizeToLocale(key("perms"), l),
                 loc.localizeToLocale(key("perms", "value"), l,
                     permissionsToLong(member.getPermissions()),
-                    permissionsToLong(member.getPermissions(context.getFeedbackChannel()))), true);
+                    permissionsToLong(member.getPermissions((GuildChannel) context.getFeedbackChannel()))), true);
         }
 
         //  ATTRIBUTES
@@ -195,7 +192,7 @@ public class InfoCmd implements Command {
         }
 
         return new MessageBuilder()
-            .setEmbed(builder.build())
+            .setEmbeds(builder.build())
             .build();
     }
 
@@ -205,7 +202,6 @@ public class InfoCmd implements Command {
 
 
         return new MessageBuilder()
-            .setEmbed(null)
             .build();
     }
 
@@ -219,7 +215,7 @@ public class InfoCmd implements Command {
         builder.setColor(Color.ORANGE);
 
         return new MessageBuilder()
-            .setEmbed(builder.build())
+            .setEmbeds(builder.build())
             .build();
     }
 

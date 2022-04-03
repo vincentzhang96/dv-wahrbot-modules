@@ -14,8 +14,7 @@ import com.mashape.unirest.http.Unirest;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.priv.GenericPrivateMessageEvent;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +44,7 @@ public class CommandHandler {
         this.managementPrefix = configStore.getStringHandle(MANAGEMENT_PREFIX);
     }
 
-    public void onPrivateMessage(PrivateMessageReceivedEvent event) {
+    public void onPrivateMessage(MessageReceivedEvent event) {
         WahrBot bot = this.core.getBot();
         //  Instead of using the command bus for these commands, we listen for these raw as to avoid misbehaving modules
         //  so that we can always perform core management tasks
@@ -144,7 +143,7 @@ public class CommandHandler {
         return false;
     }
 
-    private void setSuperAdmin(CommandLine line, PrivateMessageReceivedEvent event) {
+    private void setSuperAdmin(CommandLine line, MessageReceivedEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing user ID")
@@ -179,7 +178,7 @@ public class CommandHandler {
         }
     }
 
-    private void addModule(CommandLine line, PrivateMessageReceivedEvent event) {
+    private void addModule(CommandLine line, MessageReceivedEvent event) {
         MessageChannel ch = event.getChannel();
         List<Message.Attachment> attachments = event.getMessage().getAttachments();
         String urlStr;
@@ -244,7 +243,7 @@ public class CommandHandler {
         }
     }
 
-    private void loadModule(CommandLine line, GenericPrivateMessageEvent event) {
+    private void loadModule(CommandLine line, MessageReceivedEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
@@ -280,7 +279,7 @@ public class CommandHandler {
         }
     }
 
-    private void unloadModule(CommandLine line, GenericPrivateMessageEvent event) {
+    private void unloadModule(CommandLine line, MessageReceivedEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
@@ -318,7 +317,7 @@ public class CommandHandler {
         }
     }
 
-    private void reloadModule(CommandLine line, GenericPrivateMessageEvent event) {
+    private void reloadModule(CommandLine line, MessageReceivedEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing module ID and/or version")
@@ -349,7 +348,7 @@ public class CommandHandler {
         }
     }
 
-    private void getUserData(CommandLine line, PrivateMessageReceivedEvent event) {
+    private void getUserData(CommandLine line, MessageReceivedEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing user ID")
@@ -385,7 +384,7 @@ public class CommandHandler {
         }
     }
 
-    private void setUserData(CommandLine line, PrivateMessageReceivedEvent event) {
+    private void setUserData(CommandLine line, MessageReceivedEvent event) {
         MessageChannel ch = event.getChannel();
         if (!line.hasNext()) {
             ch.sendMessage("Missing user ID")

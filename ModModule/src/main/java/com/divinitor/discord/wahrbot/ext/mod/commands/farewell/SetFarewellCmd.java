@@ -6,6 +6,7 @@ import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.commands.JLMessageHelper;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 
 import java.awt.*;
@@ -33,7 +34,7 @@ public class SetFarewellCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.no_args"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -63,7 +64,7 @@ public class SetFarewellCmd extends AbstractKeyedCommand {
                 false
             );
 
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
         }
 

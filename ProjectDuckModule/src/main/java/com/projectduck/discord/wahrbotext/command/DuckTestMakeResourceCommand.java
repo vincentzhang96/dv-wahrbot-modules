@@ -10,7 +10,12 @@ import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.projectduck.discord.wahrbotext.ProjectDuckModule;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.json.JSONObject;
 
 import java.util.NoSuchElementException;
@@ -44,13 +49,19 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
         String stagingName = line.next();
         boolean deploy = line.hasNext() && "deploy".equalsIgnoreCase(line.next());
 
+        makeRes(context.getFeedbackChannel(), stagingName, deploy);
+
+        return CommandResult.ok();
+    }
+
+    public static void makeRes(MessageChannel channel, String stagingName, boolean deploy) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(0xFFA500)
                 .addField("Staging Folder", stagingName, false)
                 .addField("Deploy?", deploy ? "Yes" : "No", false)
                 .appendDescription("Building resources...");
 
-        Message message = context.getFeedbackChannel().sendMessage(builder.build()).complete();
+        Message message = channel.sendMessage(new MessageBuilder().setEmbeds(builder.build()).build()).complete();
 
         Unirest.post("http://westus.test.infra.fatduckdn.com:8001/makeres")
                 .queryString("name", stagingName)
@@ -67,7 +78,7 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
                                     .addField("Staging Folder", stagingName, false)
                                     .addField("Error", bodyS, false)
                                     .appendDescription("Build/deploy FAILED");
-                            message.editMessage(b1.build()).queue();
+                            message.editMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
                         } else {
                             JSONObject body = new JSONObject(bodyS);
                             String pakUrl = body.getString("pak_url");
@@ -84,7 +95,19 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
                             if (deployed) {
                                 b1.addField("Deployed", "This pak has been deployed to test (pending restart)", false);
                             }
-                            message.editMessage(b1.build()).queue();
+                            message.editMessage(new MessageBuilder()
+                                    .setEmbeds(b1.build())
+                                    .setActionRows(ActionRow.of(
+                                            Button.primary(
+                                                    String.format("makeres;%s;%s", true, stagingName),
+                                                            String.format("Remake and deploy %s", stagingName))
+                                                    .withEmoji(Emoji.fromUnicode("\uD83D\uDEF3")),
+                                            Button.primary(
+                                                            String.format("makeres;%s;%s", false, stagingName),
+                                                            String.format("Remake %s only", stagingName))
+                                                    .withEmoji(Emoji.fromUnicode("\uD83D\uDD04"))
+                                    ))
+                                    .build()).queue();
                         }
                     }
 
@@ -96,7 +119,7 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
                                 .addField("Staging Folder", stagingName, false)
                                 .addField("Error", e.toString(), false)
                                 .appendDescription("Build/deploy FAILED");
-                        message.editMessage(b1.build()).queue();
+                        message.editMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
                     }
 
                     @Override
@@ -107,11 +130,9 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
                                 .addField("Staging Folder", stagingName, false)
                                 .addField("Error", "Request cancelled", false)
                                 .appendDescription("Build/deploy FAILED");
-                        message.editMessage(b1.build()).queue();
+                        message.editMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
                     }
                 });
-
-        return CommandResult.ok();
     }
 
     @Override

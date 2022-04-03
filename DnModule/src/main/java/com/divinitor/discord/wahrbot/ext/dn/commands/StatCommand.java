@@ -11,6 +11,7 @@ import com.divinitor.discord.wahrbot.ext.dn.services.DnStatService;
 import com.divinitor.discord.wahrbot.ext.dn.util.QueueExceptionHandler;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -190,7 +191,7 @@ public class StatCommand implements DnCommand {
         builder.setFooter(this.loc.localizeToLocale(this.baseKey("footer"), locale, nlcp),
             this.loc.localizeToLocale(this.baseKey("footer.url"), locale, nlcp));
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, this.handleQueueException("result"));
 
         return CommandResult.ok();
@@ -342,7 +343,7 @@ public class StatCommand implements DnCommand {
                 this.loc.localizeToLocale(this.key("remark.body"), l, nlcp), false);
         }
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue(null, this.handleQueueException(exceptionKey));
         return CommandResult.rejected();
     }

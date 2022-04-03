@@ -84,7 +84,7 @@ public class AvatarCmd implements Command {
         }
 
         return new MessageBuilder()
-            .setEmbed(builder.build())
+            .setEmbeds(builder.build())
             .build();
     }
 
@@ -97,7 +97,7 @@ public class AvatarCmd implements Command {
         builder.setColor(Color.ORANGE);
 
         return new MessageBuilder()
-            .setEmbed(builder.build())
+            .setEmbeds(builder.build())
             .build();
     }
 

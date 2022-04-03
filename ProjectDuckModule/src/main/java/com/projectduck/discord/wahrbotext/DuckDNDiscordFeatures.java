@@ -18,8 +18,8 @@ import lombok.SneakyThrows;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
 
 import java.nio.charset.StandardCharsets;
@@ -87,7 +87,11 @@ public class DuckDNDiscordFeatures {
 
     @SneakyThrows
     @Subscribe
-    public void handleSpamMessage(GuildMessageReceivedEvent event) {
+    public void handleSpamMessage(MessageReceivedEvent event) {
+        if (!event.isFromGuild()) {
+            return;
+        }
+
         Guild guild = event.getGuild();
         if (guild.getIdLong() != 544827049752264704L) {
             return;
@@ -103,7 +107,12 @@ public class DuckDNDiscordFeatures {
             return;
         }
 
-        TextChannel channel = event.getChannel();
+        MessageChannel ch = event.getChannel();
+        if (!(ch instanceof TextChannel)) {
+            return;
+        }
+
+        TextChannel channel = (TextChannel) ch;
 
         CacheEntry cacheEntry = this.messageCache.get(author.getId());
         Pair<Integer, String> entry = cacheEntry.addMessage(message, channel.getId());
@@ -150,33 +159,15 @@ public class DuckDNDiscordFeatures {
         }
     }
 
-    @Subscribe
-    public void handleShipReaction(GuildMessageReactionAddEvent event) {
-        TextChannel channel = event.getChannel();
-        if (channel.getIdLong() != 684227396110385152L && channel.getIdLong() != 808457392169549835L) {
-            return;
-        }
-
-        MessageReaction.ReactionEmote emote = event.getReactionEmote();
-        // Ship emoji
-        if (emote.isEmote() || !"U+1f6a2".equalsIgnoreCase(emote.getAsCodepoints())) {
-            return;
-        }
-
-        long messageId = event.getMessageIdLong();
-        Message message = channel.retrieveMessageById(messageId).complete();
-        if (message == null) {
-            return;
-        }
-
-        UserStore store = this.bot.getUserStorage().forUser(event.getUser());
+    public String shipDnt(Message message, User user, TextChannel channel) {
+        UserStore store = this.bot.getUserStorage().forUser(user);
 
         try {
             if (!store.getBoolean("pdn.test")) {
-                return;
+                return "You do not have permission";
             }
         } catch (NoSuchElementException nsee) {
-            return;
+            return "You do not have permission";
         }
 
         String urlField = null;
@@ -189,12 +180,12 @@ public class DuckDNDiscordFeatures {
         }
 
         if (urlField == null) {
-            return;
+            return "Unable to parse deployment URL";
         }
 
         int idx = urlField.lastIndexOf("/dnt/");
         if (idx == -1) {
-            return;
+            return "Invalid deployment URL";
         }
 
         String url = urlField.substring(idx + 5, urlField.length() - 1);
@@ -215,7 +206,7 @@ public class DuckDNDiscordFeatures {
                                     .addField("Package", url, false)
                                     .addField("Error", bodyS, false)
                                     .appendDescription("DNT deploy FAILED");
-                            channel.sendMessage(b1.build()).queue();
+                            channel.sendMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
                         } else {
                             Emote deployedEmote = bot.getApiClient().getEmoteById(770796418783772752L);
                             if (deployedEmote == null) {
@@ -236,7 +227,7 @@ public class DuckDNDiscordFeatures {
                                 .addField("Package", url, false)
                                 .addField("Error", e.toString(), false)
                                 .appendDescription("DNT deploy FAILED");
-                        channel.sendMessage(b1.build()).queue();
+                        channel.sendMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
                     }
 
                     @Override
@@ -247,16 +238,54 @@ public class DuckDNDiscordFeatures {
                                 .addField("Package", url, false)
                                 .addField("Error", "Request cancelled", false)
                                 .appendDescription("DNT deploy FAILED");
-                        message.editMessage(b1.build()).queue();
+                        message.editMessage(new MessageBuilder().setEmbeds(b1.build()).build()).queue();
                     }
                 });
+
+        return "Deployment queued";
+    }
+
+    @Subscribe
+    public void handleShipReaction(MessageReactionAddEvent event) {
+        if (!event.isFromGuild()) {
+            return;
+        }
+
+        MessageChannel ch = event.getChannel();
+        if (!(ch instanceof TextChannel)) {
+            return;
+        }
+
+        TextChannel channel = (TextChannel) ch;
+
+        if (channel.getIdLong() != 684227396110385152L && channel.getIdLong() != 808457392169549835L) {
+            return;
+        }
+
+        MessageReaction.ReactionEmote emote = event.getReactionEmote();
+        // Ship emoji
+        if (emote.isEmote() || !"U+1f6a2".equalsIgnoreCase(emote.getAsCodepoints())) {
+            return;
+        }
+
+        long messageId = event.getMessageIdLong();
+        Message message = channel.retrieveMessageById(messageId).complete();
+        if (message == null) {
+            return;
+        }
+
+        shipDnt(message, event.getUser(), channel);
     }
 
     private Instant lastTierListTime = null;
 
     @SneakyThrows
     @Subscribe
-    public void autoreplyTierList(GuildMessageReceivedEvent event) {
+    public void autoreplyTierList(MessageReceivedEvent event) {
+        if (!event.isFromGuild()) {
+            return;
+        }
+
         Instant now = Instant.now();
         if (lastTierListTime != null) {
             long deltaSec = Duration.between(lastTierListTime, now).abs().getSeconds();

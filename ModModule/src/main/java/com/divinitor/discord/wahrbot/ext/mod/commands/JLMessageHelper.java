@@ -33,7 +33,7 @@ public class JLMessageHelper {
     public static TextChannel getDefaultChannel(Guild guild) {
         TextChannel oldDefault = guild.getTextChannelById(guild.getIdLong());
         if (oldDefault == null) {
-            return guild.getDefaultChannel();
+            return (TextChannel) guild.getDefaultChannel();
         }
 
         return oldDefault;

@@ -7,8 +7,10 @@ import com.divinitor.discord.wahrbot.ext.mod.ModModule;
 import com.divinitor.discord.wahrbot.ext.mod.commands.JLMessageHelper;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.*;
@@ -66,14 +68,14 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
                 builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
                 builder.setDescription(this.loc.localizeToLocale(this.key("error.unkarg"), l, nlcp));
                 builder.setColor(Color.RED);
-                context.getFeedbackChannel().sendMessage(builder.build())
+                context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                     .queue();
                 return CommandResult.rejected();
         }
     }
 
     private CommandResult remove(CommandContext context, CommandLine line) {
-        TextChannel channel = resolveTextChannel(context, line);
+        MessageChannel channel = resolveTextChannel(context, line);
         Map<String, Object> nlcp = context.getNamedLocalizationContextParams();
         Locale l = context.getLocale();
 
@@ -82,7 +84,7 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.unkch"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -98,14 +100,14 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
         builder.setDescription(loc.localizeToLocale(this.key("resp.desc.remove"), l, channel.getAsMention(), nlcp));
         builder.setColor(Color.GREEN);
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue();
 
         return CommandResult.ok();
     }
 
     private CommandResult add(CommandContext context, CommandLine line) {
-        TextChannel channel = resolveTextChannel(context, line);
+        MessageChannel channel = resolveTextChannel(context, line);
         Map<String, Object> nlcp = context.getNamedLocalizationContextParams();
         Locale l = context.getLocale();
 
@@ -114,7 +116,7 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.unkch"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -131,7 +133,7 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
         builder.setDescription(loc.localizeToLocale(this.key("resp.desc.add"), l, channel.getAsMention(), nlcp));
         builder.setColor(Color.GREEN);
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue();
 
         return CommandResult.ok();
@@ -148,12 +150,12 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
     }
 
     private CommandResult set(CommandContext context, CommandLine line) {
-        TextChannel channel = resolveTextChannel(context, line);
+        MessageChannel channel = resolveTextChannel(context, line);
 
         return this.set(context, line, channel);
     }
 
-    private CommandResult set(CommandContext context, CommandLine line, TextChannel channel) {
+    private CommandResult set(CommandContext context, CommandLine line, MessageChannel channel) {
         Map<String, Object> nlcp = context.getNamedLocalizationContextParams();
         Locale l = context.getLocale();
 
@@ -162,7 +164,7 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.unkch"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -178,7 +180,7 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
         builder.setDescription(loc.localizeToLocale(this.key("resp.desc.set"), l, channel.getAsMention(), nlcp));
         builder.setColor(Color.GREEN);
 
-        context.getFeedbackChannel().sendMessage(builder.build())
+        context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
             .queue();
 
         return CommandResult.ok();
@@ -213,8 +215,8 @@ public class SetFarewellChannelCmd extends AbstractKeyedCommand {
         return CommandResult.ok();
     }
 
-    private TextChannel resolveTextChannel(CommandContext context, CommandLine line) {
-        TextChannel channel;
+    private MessageChannel resolveTextChannel(CommandContext context, CommandLine line) {
+        MessageChannel channel;
         if (line.hasNext()) {
             String next = line.next();
             List<TextChannel> mentions = context.getMessage().getMentionedChannels();

@@ -7,7 +7,8 @@ import com.divinitor.discord.wahrbot.core.module.ModuleContext;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.Getter;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,9 @@ public class CoreModule implements Module {
     }
 
     @Subscribe
-    public void onPrivateMessage(PrivateMessageReceivedEvent event) {
-        this.handler.onPrivateMessage(event);
+    public void onPrivateMessage(MessageReceivedEvent event) {
+        if (event.isFromType(ChannelType.PRIVATE)) {
+            this.handler.onPrivateMessage(event);
+        }
     }
 }

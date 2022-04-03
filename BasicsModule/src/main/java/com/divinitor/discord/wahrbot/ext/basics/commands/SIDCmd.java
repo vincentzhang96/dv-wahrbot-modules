@@ -8,6 +8,7 @@ import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.util.discord.SnowflakeUtils;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 
 import java.awt.*;
 import java.util.Locale;
@@ -37,7 +38,7 @@ public class SIDCmd implements Command {
             builder.setTitle(this.loc.localizeToLocale(this.key("err.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("err.no_args"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -55,7 +56,7 @@ public class SIDCmd implements Command {
             builder.setTitle(loc.localizeToLocale(this.key("resp.title"), l, nlcp));
             builder.setDescription(loc.localizeToLocale(this.key("resp.desc"), l, next, converted, nlcp));
             builder.setColor(Color.GREEN);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.ok();
         } catch (Exception e) {
@@ -63,7 +64,7 @@ public class SIDCmd implements Command {
             builder.setTitle(this.loc.localizeToLocale(this.key("err.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("err.invalid"), l, next, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }

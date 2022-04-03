@@ -7,6 +7,7 @@ import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.divinitor.discord.wahrbot.core.i18n.ResourceBundleBundle;
 import com.divinitor.discord.wahrbot.core.module.Module;
 import com.divinitor.discord.wahrbot.core.module.ModuleContext;
+import com.divinitor.discord.wahrbot.ext.mod.commands.CreateWebhookCommand;
 import com.divinitor.discord.wahrbot.ext.mod.commands.farewell.SetFarewellChannelCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.farewell.SetFarewellCmd;
 import com.divinitor.discord.wahrbot.ext.mod.commands.reactrole.ReactRoleAddCmd;
@@ -62,6 +63,9 @@ public class ModModule implements Module {
     private ReactRoleAddCmd reactRoleAddCmd;
 
     @Inject
+    private CreateWebhookCommand createWebhookCommand;
+
+    @Inject
     public ModModule(WahrBot bot, CommandDispatcher dispatcher) {
         this.bot = bot;
         this.dispatcher = dispatcher;
@@ -84,6 +88,8 @@ public class ModModule implements Module {
 
         this.setFarewellCmd.register(this.modRegistry, loc);
         this.setFarewellChannelCmd.register(this.modRegistry, loc);
+
+        this.createWebhookCommand.register(this.modRegistry, loc);
 
         this.registerBundle(REACTROLE_KEY, REACTROLE_PATH + ".rr");
 
@@ -120,6 +126,8 @@ public class ModModule implements Module {
         this.setWelcomeCmd.unregister(this.modRegistry, loc);
         this.setWelcomeDMCmd.unregister(this.modRegistry, loc);
         this.setWelcomeChannelCmd.unregister(this.modRegistry, loc);
+
+        this.createWebhookCommand.unregister(this.modRegistry, loc);
 
         this.setFarewellCmd.unregister(this.modRegistry, loc);
         this.setFarewellChannelCmd.unregister(this.modRegistry, loc);

@@ -24,7 +24,7 @@ public class ProjectDuckModule implements Module {
     private final WahrBot bot;
     private final CommandDispatcher dispatcher;
     private DuckDNDiscordFeatures duckDNDiscordFeatures;
-    private ApiServer apiServer;
+    private Interactions interactions;
 
     public static final String MODULE_KEY = "ext.projectduck";
     public static final String BASE_MODULE_PATH = "com.projectduck.discord.wahrbotext.command";
@@ -76,10 +76,13 @@ public class ProjectDuckModule implements Module {
         Injector injector = context.getInjector();
 
         this.duckDNDiscordFeatures = injector.getInstance(DuckDNDiscordFeatures.class);
-        this.apiServer = injector.getInstance(ApiServer.class);
+        this.interactions = injector.getInstance(Interactions.class);
 
         AsyncEventBus eventBus = this.bot.getEventBus();
         eventBus.register(this.duckDNDiscordFeatures);
+        eventBus.register(this.interactions);
+
+        this.interactions.setUp(this.duckDNDiscordFeatures);
 
         Unirest.setTimeouts(10000, 240000);
 
@@ -99,14 +102,14 @@ public class ProjectDuckModule implements Module {
             eventBus.unregister(this.duckDNDiscordFeatures);
         }
 
+        if (this.interactions != null) {
+            eventBus.unregister(this.interactions);
+        }
+
         Localizer loc = bot.getLocalizer();
         CommandRegistry registry = this.dispatcher.getRootRegistry();
         for (BasicMemoryCommand duckCommand : this.duckCommands) {
             duckCommand.unregister(registry, loc);
-        }
-
-        if (this.apiServer != null) {
-            this.apiServer.stop();
         }
     }
 }

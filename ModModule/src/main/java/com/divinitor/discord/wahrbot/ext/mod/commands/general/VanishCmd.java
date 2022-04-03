@@ -4,6 +4,7 @@ import com.divinitor.discord.wahrbot.core.command.*;
 import com.divinitor.discord.wahrbot.core.i18n.Localizer;
 import com.google.inject.Inject;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
 
 import java.awt.*;
 import java.util.Locale;
@@ -33,7 +34,7 @@ public class VanishCmd implements Command {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.no_args"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -49,7 +50,7 @@ public class VanishCmd implements Command {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.invalid_number"), l, amountStr, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
@@ -59,7 +60,7 @@ public class VanishCmd implements Command {
             builder.setTitle(this.loc.localizeToLocale(this.key("error.title"), l, nlcp));
             builder.setDescription(this.loc.localizeToLocale(this.key("error.invalid_amount"), l, nlcp));
             builder.setColor(Color.RED);
-            context.getFeedbackChannel().sendMessage(builder.build())
+            context.getFeedbackChannel().sendMessage(new MessageBuilder().setEmbeds(builder.build()).build())
                 .queue();
             return CommandResult.rejected();
         }
