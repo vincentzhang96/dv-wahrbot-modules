@@ -17,6 +17,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -320,5 +321,47 @@ public class DuckDNDiscordFeatures {
 
             message.getChannel().sendMessage(msg).queue();
         }
+    }
+
+
+    @SneakyThrows
+    @Subscribe
+    public void autoreplyWelcomeChannel(MessageReceivedEvent event) {
+        if (!event.isFromGuild()) {
+            return;
+        }
+        Guild guild = event.getGuild();
+        if (guild.getIdLong() != 544827049752264704L) {
+            return;
+        }
+
+        Message message = event.getMessage();
+        if (message.isWebhookMessage()) {
+            return;
+        }
+
+        if (message.getChannel().getIdLong() != 882346314858397776L) {
+            return;
+        }
+
+        Member member = event.getMember();
+        User author = event.getAuthor();
+        if (author.isBot()) {
+            return;
+        }
+
+        if (member.hasPermission(Permission.MESSAGE_MANAGE)) {
+            return;
+        }
+
+        Message msg = new MessageBuilder()
+                .append(author)
+                .append(" you must verify to become a member to send messages and view the rest of the Discord server")
+                .build();
+
+        message.reply(msg).queue((m) -> {
+
+        });
+
     }
 }

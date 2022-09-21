@@ -60,9 +60,16 @@ public class ProjectDuckModule implements Module {
                     "If you missed the guide the first 20 times",
                     "https://news.fatduckdn.com/guide/"
             ),
+            new BasicDuckDnPostUrlCommand(
+                    "ti",
+                    "If you're having technical issues",
+                    "https://news.fatduckdn.com/common-technical-issues/",
+                    true
+            ),
             new DuckTestMakeResourceCommand(),
             new DuckTestRestartCommand(),
-            new DuckTestResyncCommand()
+            new DuckTestResyncCommand(),
+            new DuckRemindUnverifiedCommand()
     );
 
     @Inject
