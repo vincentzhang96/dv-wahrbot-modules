@@ -321,6 +321,14 @@ public class DuckDNDiscordFeatures {
 
             message.getChannel().sendMessage(msg).queue();
         }
+        else if (raw.contains("no such item exists")) {
+            lastTierListTime = now;
+            Message msg = new MessageBuilder()
+                    .append("Unequip all your rune amps and re-equip them")
+                    .build();
+
+            message.reply(msg).queue();
+        }
     }
 
 

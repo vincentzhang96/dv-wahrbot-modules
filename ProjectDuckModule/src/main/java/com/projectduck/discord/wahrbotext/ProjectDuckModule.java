@@ -66,6 +66,24 @@ public class ProjectDuckModule implements Module {
                     "https://news.fatduckdn.com/common-technical-issues/",
                     true
             ),
+            new BasicDuckDnPostUrlCommand(
+                    "faq",
+                    "Frequently asked questions",
+                    "https://news.fatduckdn.com/frequently-asked-questions",
+                    true
+            ),
+            new BasicDuckDnPostUrlCommand(
+                    "vandar",
+                    "Vandar?",
+                    "https://news.fatduckdn.com/frequently-asked-questions/#do-you-have-vandar",
+                    true
+            ),
+            new BasicDuckDnPostUrlCommand(
+                    "sign",
+                    "Don't make me tap the sign",
+                    "https://cdn.discordapp.com/attachments/546453205924577281/1057454043267604521/image.png",
+                    true
+            ),
             new DuckTestMakeResourceCommand(),
             new DuckTestRestartCommand(),
             new DuckTestResyncCommand(),

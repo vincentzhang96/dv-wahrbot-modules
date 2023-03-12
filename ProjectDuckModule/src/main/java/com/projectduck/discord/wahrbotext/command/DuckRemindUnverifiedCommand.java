@@ -50,7 +50,7 @@ public class DuckRemindUnverifiedCommand extends BasicMemoryCommand {
                 .collect(Collectors.toList());
 
         Instant cutoff = Instant.now();//.plus(-7, ChronoUnit.DAYS);
-        Instant cutoffB = Instant.now().plus(-7, ChronoUnit.DAYS);
+        Instant cutoffB = Instant.now().plus(-30, ChronoUnit.DAYS);
         List<Member> rolelessOld = roleless.stream().filter((m) -> {
             OffsetDateTime timeJoined;
             if (!m.hasTimeJoined()) {
@@ -64,7 +64,7 @@ public class DuckRemindUnverifiedCommand extends BasicMemoryCommand {
             return instant.isBefore(cutoff) && instant.isAfter(cutoffB);
         }).collect(Collectors.toList());
 
-        context.getFeedbackChannel().sendMessage(String.format("There are %s roleless members 0-7 days", rolelessOld.size())).queue();
+        context.getFeedbackChannel().sendMessage(String.format("There are %s roleless members 30 days", rolelessOld.size())).queue();
 
         sendReminder(rolelessOld);
 
