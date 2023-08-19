@@ -315,7 +315,7 @@ public class DuckDNDiscordFeatures {
             lastTierListTime = now;
             Message msg = new MessageBuilder()
                     .append(author)
-                    .append(" DPS classes on Project Duck are all very close to each other in damage. What matters is your gear and skill with the class.\nPlay what you like!")
+                    .append(" Your skill level on a class generally matters more, most classes are fairly close. Stop monkeying and caring about DPS so much and just play what you like.")
                     .mention(author)
                     .build();
 
@@ -358,13 +358,14 @@ public class DuckDNDiscordFeatures {
             return;
         }
 
-        if (member.hasPermission(Permission.MESSAGE_MANAGE)) {
+        if (member != null && member.hasPermission(Permission.MESSAGE_MANAGE)) {
             return;
         }
 
         Message msg = new MessageBuilder()
                 .append(author)
-                .append(" you must verify to become a member to send messages and view the rest of the Discord server")
+                .append(" you must verify to become a member to send messages and view the rest of the Discord server\n\n")
+                .append("Verify by following the instructions here https://discord.com/channels/544827049752264704/882346314858397776/1061535316462280795")
                 .build();
 
         message.reply(msg).queue((m) -> {

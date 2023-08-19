@@ -84,6 +84,12 @@ public class ProjectDuckModule implements Module {
                     "https://cdn.discordapp.com/attachments/546453205924577281/1057454043267604521/image.png",
                     true
             ),
+            new BasicDuckDnPostUrlCommand(
+                    "retard",
+                    "Retard",
+                    "https://cdn.discordapp.com/attachments/287121976500158465/1108161892242960504/image.png",
+                    true
+            ),
             new DuckTestMakeResourceCommand(),
             new DuckTestRestartCommand(),
             new DuckTestResyncCommand(),
