@@ -21,16 +21,22 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 public class DuckDNDiscordFeatures {
+
+    public static String DEPLOY_KEY = "qk7vBbnCcndYjgz36hoC";
+    public static String AUTH_KEY = "DWrnq7ZOjNeFcH3yTzLV";
 
     @Getter
     @Setter
@@ -84,6 +90,127 @@ public class DuckDNDiscordFeatures {
                         return new CacheEntry(key);
                     }
                 });
+    }
+
+
+    @SneakyThrows
+    @Subscribe
+    public void wipChangelog(MessageReceivedEvent event) {
+        if (!event.isFromGuild()) {
+            return;
+        }
+
+        Guild guild = event.getGuild();
+        if (guild.getIdLong() != 544827049752264704L) {
+            return;
+        }
+
+        Message message = event.getMessage();
+        if (message.isWebhookMessage()) {
+            return;
+        }
+
+        User author = event.getAuthor();
+        if (author.isBot()) {
+            return;
+        }
+
+        if (author.getIdLong() == bot.getApiClient().getSelfUser().getIdLong()) {
+            return;
+        }
+
+        MessageChannel ch = event.getChannel();
+
+        if (ch.getIdLong() != 834195297285701642L) {
+            return;
+        }
+
+        String raw = message.getContentRaw();
+        if (!Pattern.compile("^v[0-9]+ -").matcher(raw).find()) {
+            ProjectDuckModule.LOGGER.warn("Message {} did not match", raw);
+            return;
+        }
+
+        String[] contentSplit = raw.split(" -", 2);
+        if (contentSplit.length < 2) {
+            return;
+        }
+
+        String content = contentSplit[1].trim();
+
+        MessageBuilder builder = new MessageBuilder();
+        builder.setEmbeds(new EmbedBuilder()
+                .appendDescription(content)
+                .setTitle(contentSplit[0])
+                .build()
+        );
+
+        MessageAction messageAction = ch.sendMessage(builder.build());
+        MessageAction attachmentAction = null;
+        ArrayList<File> files = new ArrayList<>();
+        if (!message.getAttachments().isEmpty()) {
+            for (Message.Attachment attachment : message.getAttachments()) {
+                try {
+                    File tempFile = File.createTempFile("wip-changelog-", attachment.getFileName());
+                    try {
+                        attachment.downloadToFile(tempFile).get();
+                        files.add(tempFile);
+                        if (attachmentAction == null) {
+                            attachmentAction = ch.sendFile(tempFile);
+                        } else {
+                            attachmentAction = attachmentAction.addFile(tempFile);
+                        }
+                    } catch (Exception e) {
+                        ProjectDuckModule.LOGGER.warn("Failed to download attachment {}", attachment.getFileName());
+                        tempFile.delete();
+                    }
+                } catch (Exception e) {
+                    ProjectDuckModule.LOGGER.warn("Failed to create attachment temp file for {}", attachment.getFileName(), e);
+                }
+            }
+        }
+
+        final MessageAction finalAttachmentAction = attachmentAction;
+        messageAction.queue((m) -> {
+            if (finalAttachmentAction != null) {
+                finalAttachmentAction.queue((m1) -> {
+                    ProjectDuckModule.LOGGER.info("message replaced");
+                    // delete the original message
+                    message.delete().queue();
+
+                    // delete temp files
+                    for (File file : files) {
+                        try {
+                            file.delete();
+                        } catch (Exception e) {
+                            ProjectDuckModule.LOGGER.warn("Failed to delete temp file {}", file.getPath(), e);
+                        }
+                    }
+                }, (ex) -> {
+                    // delete temp files
+                    for (File file : files) {
+                        try {
+                            file.delete();
+                        } catch (Exception e) {
+                            ProjectDuckModule.LOGGER.warn("Failed to delete temp file {}", file.getPath(), e);
+                        }
+                    }
+                });
+            } else {
+                ProjectDuckModule.LOGGER.info("message replaced");
+                // delete the original message
+                message.delete().queue();
+            }
+        }, (ex) -> {
+            // delete temp files
+            for (File file : files) {
+                try {
+                    file.delete();
+                } catch (Exception e) {
+                    ProjectDuckModule.LOGGER.warn("Failed to delete temp file {}", file.getPath(), e);
+                }
+            }
+        });
     }
 
     @SneakyThrows
@@ -195,7 +322,8 @@ public class DuckDNDiscordFeatures {
 
         Unirest.post("http://westus.test.infra.fatduckdn.com:8001/dnt")
                 .queryString("name", url)
-                .queryString("key", "p6ukcUBSf3GJ8o6kI4wOCygBLCK3nDqU")
+                .queryString("key", DuckDNDiscordFeatures.DEPLOY_KEY)
+                .queryString("obo", user.getId())
                 .asStringAsync(new Callback<String>() {
                     @Override
                     public void completed(HttpResponse<String> response) {
@@ -280,6 +408,70 @@ public class DuckDNDiscordFeatures {
 
     private Instant lastTierListTime = null;
 
+    static class JobClass {
+        int id;
+        String name;
+        long emoteId;
+        JobClass(int id, String name, long emoteId) {
+            this.id = id;
+            this.name = name;
+            this.emoteId = emoteId;
+        }
+    }
+
+    static List<JobClass> jobClasses = new ArrayList<>();
+    static {
+        jobClasses.add(new JobClass(23, "Gladiator",  897275591571689522L));
+//        jobClasses.add(new JobClass(24, "Lunar Knight", 897275591282278491L));
+        jobClasses.add(new JobClass(25, "Barbarian", 897275591370342440L));
+        jobClasses.add(new JobClass(26, "Destroyer", 897275591097737246L));
+        jobClasses.add(new JobClass(76, "Dark Avenger", 897275591072579657L));
+//        jobClasses.add(new JobClass(70, "Mystic Knight", 930241328883859476L));
+        jobClasses.add(new JobClass(71, "Grand Master", 930241365852454932L));
+        jobClasses.add(new JobClass(29, "Sniper", 897275270577401897L));
+        jobClasses.add(new JobClass(30, "Warden", 897275440283123733L));
+        jobClasses.add(new JobClass(31, "Tempest", 897275269956632618L));
+        jobClasses.add(new JobClass(32, "Windwalker", 897275270602555455L));
+        jobClasses.add(new JobClass(81, "Silver Hunter", 897275393768300575L));
+        jobClasses.add(new JobClass(35, "Pyromancer", 897275680759365662L));
+        jobClasses.add(new JobClass(36, "Ice Witch", 897275680432222269L));
+        jobClasses.add(new JobClass(37, "War Mage", 897275681287839764L));
+        jobClasses.add(new JobClass(38, "Chaos Mage", 897275680625131561L));
+        jobClasses.add(new JobClass(85, "Black Mara", 897275680381865985L));
+        jobClasses.add(new JobClass(41, "Guardian", 897275350722154546L));
+        jobClasses.add(new JobClass(42, "Crusader", 897275350378225745L));
+        jobClasses.add(new JobClass(43, "Saint", 897275350197878815L));
+        jobClasses.add(new JobClass(44, "Inquisitor", 897275350357270539L));
+        jobClasses.add(new JobClass(83, "Arch Heretic", 897275349589721110L));
+        jobClasses.add(new JobClass(47, "Shooting Star", 897275640405950486L));
+        jobClasses.add(new JobClass(48, "Gearmaster", 897275640158498828L));
+        jobClasses.add(new JobClass(50, "Adept", 897275640288518204L));
+        jobClasses.add(new JobClass(51, "Physician", 897275640150122547L));
+        jobClasses.add(new JobClass(87, "Ray Mechanic", 897275764616093726L));
+        jobClasses.add(new JobClass(55, "Dark Summoner", 897275772610420777L));
+        jobClasses.add(new JobClass(56, "Soul Eater", 897275772845326357L));
+        jobClasses.add(new JobClass(58, "Blade Dancer", 897275773029859339L));
+        jobClasses.add(new JobClass(59, "Spirit Dancer", 897275772874678312L));
+        jobClasses.add(new JobClass(63, "Reaper", 897275318660911184L));
+        jobClasses.add(new JobClass(64, "Raven", 897275318316961822L));
+//        jobClasses.add(new JobClass(65, "Jotunn", 1061446275872075816L));
+        jobClasses.add(new JobClass(66, "Rai", 1061446323645186158L));
+        jobClasses.add(new JobClass(68, "Light Fury", 897275318426017843L));
+        jobClasses.add(new JobClass(69, "Abyss Walker", 897275318396649482L));
+        jobClasses.add(new JobClass(91, "Blood Phantom", 897275317759131678L));
+        jobClasses.add(new JobClass(73, "Dragoon", 897275721439916042L));
+        jobClasses.add(new JobClass(74, "Valkyrie", 897275718986264587L));
+        jobClasses.add(new JobClass(93, "Avalanche", 897275842890178620L));
+        jobClasses.add(new JobClass(94, "Randgrid", 897275834124107776L));
+        jobClasses.add(new JobClass(99, "Vena Plaga", 1049727072416845874L));
+        jobClasses.add(new JobClass(78, "Defensio", 897275589893947422L));
+        jobClasses.add(new JobClass(79, "Ruina", 897275589944295454L));
+        jobClasses.add(new JobClass(96, "Impactor", 897275589713621005L));
+        jobClasses.add(new JobClass(97, "Lustre", 897275589759729665L));
+        jobClasses.add(new JobClass(102, "Duelist", 1121233488327213227L));
+//        jobClasses.add(new JobClass(103, "Trickster", 1121233510095659028L));
+    }
+
     @SneakyThrows
     @Subscribe
     public void autoreplyTierList(MessageReceivedEvent event) {
@@ -313,13 +505,32 @@ public class DuckDNDiscordFeatures {
         String raw = message.getContentRaw().toLowerCase();
         if (raw.contains("tier list") || raw.contains("tierlist")) {
             lastTierListTime = now;
-            Message msg = new MessageBuilder()
-                    .append(author)
-                    .append(" Your skill level on a class generally matters more, most classes are fairly close. Stop monkeying and caring about DPS so much and just play what you like.")
-                    .mention(author)
-                    .build();
 
-            message.getChannel().sendMessage(msg).queue();
+            Random random = new Random();
+            int idx = random.nextInt(jobClasses.size());
+            JobClass job = jobClasses.get(idx);
+            Emote emote = guild.getEmoteById(job.emoteId);
+            if (emote != null) {
+                Message msg = new MessageBuilder()
+                        .append(author)
+                        .append(" The current top DPS class is ")
+                        .append(emote.getAsMention())
+                        .append(" ")
+                        .append(job.name)
+                        .append(". You should try it out!")
+                        .mention(author)
+                        .build();
+
+                message.getChannel().sendMessage(msg).queue();
+            } else {
+                Message msg = new MessageBuilder()
+                        .append(author)
+                        .append(" Your skill level on a class generally matters more, most classes are fairly close. Stop monkeying and caring about DPS so much and just play what you like.")
+                        .mention(author)
+                        .build();
+
+                message.getChannel().sendMessage(msg).queue();
+            }
         }
         else if (raw.contains("no such item exists")) {
             lastTierListTime = now;

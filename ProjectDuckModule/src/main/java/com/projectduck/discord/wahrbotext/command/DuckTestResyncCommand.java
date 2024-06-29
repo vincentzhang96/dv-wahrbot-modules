@@ -7,10 +7,12 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.projectduck.discord.wahrbotext.DuckDNDiscordFeatures;
 import com.projectduck.discord.wahrbotext.ProjectDuckModule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
@@ -33,14 +35,15 @@ public class DuckTestResyncCommand extends BasicMemoryCommand {
     @Override
     public CommandResult invoke(CommandContext context) {
         Message message = context.getMessage();
-        resyncTest(message, (err) -> {});
+        resyncTest(message, context.getInvoker(), (err) -> {});
         return CommandResult.ok();
     }
 
-    public static void resyncTest(Message message, Consumer<String> handler) {
+    public static void resyncTest(Message message, User user, Consumer<String> handler) {
         message.addReaction("U+1F4AC").queue();
         Unirest.post("http://westus.test.infra.fatduckdn.com:8001/resync")
-                .queryString("key", "p6ukcUBSf3GJ8o6kI4wOCygBLCK3nDqU")
+                .queryString("key", DuckDNDiscordFeatures.DEPLOY_KEY)
+                .queryString("obo", user.getId())
                 .asStringAsync(new Callback<String>() {
                     @Override
                     public void completed(HttpResponse<String> response) {

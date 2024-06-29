@@ -4,8 +4,6 @@ import com.divinitor.discord.wahrbot.core.WahrBot;
 import com.divinitor.discord.wahrbot.core.store.UserStore;
 import com.google.common.base.Strings;
 import com.google.common.eventbus.Subscribe;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -17,15 +15,8 @@ import com.projectduck.discord.wahrbotext.command.DuckTestResyncCommand;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 
 import java.util.NoSuchElementException;
 
@@ -56,11 +47,15 @@ public class Interactions {
                 break;
             }
             case "rtst": {
-                this.restartTest(event, false);
+                this.restartTest(event, "");
                 break;
             }
             case "rtst g": {
-                this.restartTest(event, true);
+                this.restartTest(event, "g");
+                break;
+            }
+            case "rtst v": {
+                this.restartTest(event, "v");
                 break;
             }
             case "makeres": {
@@ -83,11 +78,11 @@ public class Interactions {
 
         try {
             if (!store.getBoolean("pdn.test")) {
-                event.reply("You do not have permission").queue();
+                event.reply(String.format("You (%s) do not have permission", user.getName())).queue();
                 return;
             }
         } catch (NoSuchElementException nsee) {
-            event.reply("You do not have permission").queue();
+            event.reply(String.format("You (%s) do not have permission", user.getName())).queue();
             return;
         }
 
@@ -116,7 +111,8 @@ public class Interactions {
         InteractionHook hook = event.deferReply().complete();
         Unirest.post("http://westus.test.infra.fatduckdn.com:8001/dnt")
                 .queryString("name", url)
-                .queryString("key", "p6ukcUBSf3GJ8o6kI4wOCygBLCK3nDqU")
+                .queryString("key", DuckDNDiscordFeatures.DEPLOY_KEY)
+                .queryString("obo", user.getId())
                 .asStringAsync(new Callback<String>() {
                     @Override
                     public void completed(HttpResponse<String> response) {
@@ -167,23 +163,23 @@ public class Interactions {
                 });
     }
 
-    private void restartTest(ButtonInteractionEvent event, boolean gameOnly) {
+    private void restartTest(ButtonInteractionEvent event, String mode) {
         User user = event.getUser();
         TextChannel channel = event.getTextChannel();
         UserStore store = this.bot.getUserStorage().forUser(user);
 
         try {
             if (!store.getBoolean("pdn.test")) {
-                event.reply("You do not have permission").queue();
+                event.reply(String.format("You (%s) do not have permission", user.getName())).queue();
                 return;
             }
         } catch (NoSuchElementException nsee) {
-            event.reply("You do not have permission").queue();
+            event.reply(String.format("You (%s) do not have permission", user.getName())).queue();
             return;
         }
 
-        InteractionHook hook = event.reply("Requested restart" + (gameOnly ? " of game server" : "")).setEphemeral(true).complete();
-        DuckTestRestartCommand.restartTest(event.getMessage(), gameOnly, (err) -> {
+        InteractionHook hook = event.reply("Requested restart" + (mode.equals("g") ? " of game server" : mode.equals("v") ? " of village server " : "")).setEphemeral(true).complete();
+        DuckTestRestartCommand.restartTest(event.getMessage(), user, mode, (err) -> {
             if (Strings.isNullOrEmpty(err)) {
                 hook.editOriginal("Restarting").queue();
             } else {
@@ -199,17 +195,17 @@ public class Interactions {
 
         try {
             if (!store.getBoolean("pdn.test")) {
-                event.reply("You do not have permission").queue();
+                event.reply(String.format("You (%s) do not have permission", user.getName())).queue();
                 return;
             }
         } catch (NoSuchElementException nsee) {
-            event.reply("You do not have permission").queue();
+            event.reply(String.format("You (%s) do not have permission", user.getName())).queue();
             return;
         }
 
         InteractionHook hook = event.reply("Requested resync").setEphemeral(true).complete();
 
-        DuckTestResyncCommand.resyncTest(event.getMessage(), (err) -> {
+        DuckTestResyncCommand.resyncTest(event.getMessage(), user, (err) -> {
             if (Strings.isNullOrEmpty(err)) {
                 hook.editOriginal("Resync completed").queue();
             } else {
@@ -225,15 +221,15 @@ public class Interactions {
 
         try {
             if (!store.getBoolean("pdn.test")) {
-                event.reply("You do not have permission").queue();
+                event.reply(String.format("You (%s) do not have permission", user.getName())).queue();
                 return;
             }
         } catch (NoSuchElementException nsee) {
-            event.reply("You do not have permission").queue();
+            event.reply(String.format("You (%s) do not have permission", user.getName())).queue();
             return;
         }
 
         InteractionHook hook = event.reply("Rerunning").setEphemeral(true).complete();
-        DuckTestMakeResourceCommand.makeRes(event.getChannel(), branch, deploy);
+        DuckTestMakeResourceCommand.makeRes(event.getChannel(), user, branch, deploy, false);
     }
 }

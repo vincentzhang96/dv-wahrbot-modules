@@ -7,10 +7,12 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.projectduck.discord.wahrbotext.DuckDNDiscordFeatures;
 import com.projectduck.discord.wahrbotext.ProjectDuckModule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
@@ -32,17 +34,19 @@ public class DuckTestRestartCommand extends BasicMemoryCommand {
 
     @Override
     public CommandResult invoke(CommandContext context) {
-        boolean gameOnly ="g".equalsIgnoreCase(context.getCommandLine().peek());
+        boolean gameOnly = "g".equalsIgnoreCase(context.getCommandLine().peek());
+        boolean villageOnly = "v".equalsIgnoreCase(context.getCommandLine().peek());
 
         Message message = context.getMessage();
-        restartTest(message, gameOnly, (err) -> {});
+        restartTest(message, context.getInvoker(), gameOnly ? "g" : villageOnly ? "v" : "", (err) -> {});
         return CommandResult.ok();
     }
 
-    public static void restartTest(Message message, boolean gameOnly, Consumer<String> handler) {
+    public static void restartTest(Message message, User user, String mode, Consumer<String> handler) {
         message.addReaction("U+1F4AC").queue();
-        Unirest.post("http://westus.test.infra.fatduckdn.com:8001/restart" + (gameOnly ? "g" : ""))
-                .queryString("key", "p6ukcUBSf3GJ8o6kI4wOCygBLCK3nDqU")
+        Unirest.post("http://westus.test.infra.fatduckdn.com:8001/restart" + mode)
+                .queryString("key", DuckDNDiscordFeatures.DEPLOY_KEY)
+                .queryString("obo", user.getId())
                 .asStringAsync(new Callback<String>() {
                     @Override
                     public void completed(HttpResponse<String> response) {

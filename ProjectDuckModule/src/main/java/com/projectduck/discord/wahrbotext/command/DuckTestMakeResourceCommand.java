@@ -8,12 +8,14 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.async.Callback;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.projectduck.discord.wahrbotext.DuckDNDiscordFeatures;
 import com.projectduck.discord.wahrbotext.ProjectDuckModule;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.json.JSONObject;
@@ -47,14 +49,23 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
         }
 
         String stagingName = line.next();
-        boolean deploy = line.hasNext() && "deploy".equalsIgnoreCase(line.next());
+        boolean deploy = false;
+        boolean zip = false;
+        while (line.hasNext()) {
+            String option = line.next().toLowerCase();
+            if ("deploy".equals(option)) {
+                deploy = true;
+            } else if ("zip".equals(option)) {
+                zip = true;
+            }
+        }
 
-        makeRes(context.getFeedbackChannel(), stagingName, deploy);
+        makeRes(context.getFeedbackChannel(), context.getInvoker(), stagingName, deploy, zip);
 
         return CommandResult.ok();
     }
 
-    public static void makeRes(MessageChannel channel, String stagingName, boolean deploy) {
+    public static void makeRes(MessageChannel channel, User user, String stagingName, boolean deploy, boolean zip) {
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(0xFFA500)
                 .addField("Staging Folder", stagingName, false)
@@ -66,7 +77,9 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
         Unirest.post("http://westus.test.infra.fatduckdn.com:8001/makeres")
                 .queryString("name", stagingName)
                 .queryString("deploy", deploy ? "true" : "false")
-                .queryString("key", "p6ukcUBSf3GJ8o6kI4wOCygBLCK3nDqU")
+                .queryString("zip", zip ? "true" : "false")
+                .queryString("key", DuckDNDiscordFeatures.DEPLOY_KEY)
+                .queryString("obo", user.getId())
                 .asStringAsync(new Callback<String>() {
                     @Override
                     public void completed(HttpResponse<String> response) {
@@ -82,16 +95,23 @@ public class DuckTestMakeResourceCommand extends BasicMemoryCommand {
                         } else {
                             JSONObject body = new JSONObject(bodyS);
                             String pakUrl = body.getString("pak_url");
-                            String zipUrl = body.getString("zip_url");
+                            String zipUrl = null;
+                            String zipName = null;
+                            if (body.has("zip_url")) {
+                                zipUrl = body.getString("zip_url");
+                                zipName = zipUrl.substring(zipUrl.lastIndexOf('/'));
+                            }
                             String pakName = pakUrl.substring(pakUrl.lastIndexOf('/'));
-                            String zipName = zipUrl.substring(zipUrl.lastIndexOf('/'));
                             boolean deployed = body.getBoolean("deployed");
                             EmbedBuilder b1 = new EmbedBuilder()
                                     .setColor(0x00FF00)
                                     .setTitle("Duck DN Resource Build")
                                     .addField("Staging Folder", stagingName, false)
-                                    .addField("Pak", String.format("[Download %s](%s)", pakName, pakUrl), false)
-                                    .addField("Zip", String.format("[Download %s](%s)", zipName, zipUrl), false);
+                                    .addField("Pak", String.format("[Download %s](%s)", pakName, pakUrl), false);
+                            if (zipUrl != null) {
+                                b1.addField("Zip", String.format("[Download %s](%s)", zipName, zipUrl), false);
+                            }
+
                             if (deployed) {
                                 b1.addField("Deployed", "This pak has been deployed to test (pending restart)", false);
                             }
